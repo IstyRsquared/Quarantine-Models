@@ -124,7 +124,7 @@ inf_df <- cbind(params, variable=rep("infection", length(infection)), value=as.n
 
 final_df <- rbind(sign_df, period_df, inf_df)
 head(final_df); tail(final_df)
-
+# write.csv(final_df, "output/SEIRVQrabies_EndemicEquilibrium.csv", row.names=F)
 
 
 
