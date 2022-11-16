@@ -4,28 +4,42 @@
 ## Code: Theoretical part - takes output from SEI(R)VQ stability analysis and draws plots
 
 rm(list=ls())
-setwd("~/Documents/Rabies_Warwick/Quarantine-models")
+setwd("C:/Users/tui9/Documents/Practice code/Quarantine-Models")
 
 ## Libraries 
 library(harrypotter)
+library("tidyverse")
+# library("ggpubr")
 
 ## Data
 final_df <- read.csv("output/SEIRVQrabies_EndemicEquilibrium.csv")
+unique(final_df$R0) # 11
 
-## Name: Micah Fletcher (adapted by Isty Rysava)
-## Date: 21/06/2022
-## Code: Makes faceted raster plots for Anthrax_IBM output data
+## test
+pal <- hp(n = 10, house = "Slytherin")
+plot(1:10, 1:10, col=pal, pch=16, cex=3)
+colgreen <- pal[5]
+collightgreen <- pal[2]
 
-rm(list=ls())
-setwd("~/Documents/Anthrax-Virulence-main")
+pal <- hp(n=8, option = "LunaLovegood")
+plot(1:8, 1:8, col=pal, pch=16, cex=3)
+colpink <- pal[6]
 
-# LIBRARIES
-library("tidyverse")
-library("ggpubr")
-library("harrypotter")
+col <- colorRampPalette(c(colgreen, colpink))(30) 
+col.more <- colorRampPalette(c(collightgreen, colpink))(60)
+plot(1:30, 1:30, col=col, pch=16, cex=3)
+plot(1:60, 1:60, col=col.more, pch=16, cex=3)
 
-# DATA
-final_df <- read.csv("output/results_summary.csv")
+test <- filter(final_df, variable=="stability", R0=="1.5")
+unique(test$value)
+ggplot(test, aes( x=vc, y=q, fill = value)) +
+  geom_raster()
+
+y=unique(test$q)
+x=unique(test$vc) # the order doesn't match!
+z=matrix(test$value, ncol=length(y), nrow=length(x))
+image(x=x, y=y, z=z, xlab="qP", ylab="vcP", col=col.more, main="Stability", cex.axis=.6, cex.main=.75, cex.lab=.7)
+
 
 df <- tibble(final_df) %>%
   mutate(surv = ifelse(is.na(surv), "Full", "Half"),
@@ -46,37 +60,24 @@ theme_set(theme_bw() +
                   legend.key.size = unit(0.3, 'cm')))
 
 ################# PREP PLOTS 1 #################
-p_toxin <- ggplot(data = filter(df, variable=="toxin", surv=="Full"), aes(omega, d, fill = mean)) +
+p_stability <- ggplot(data = filter(final_df, variable=="stability"), aes(vc, q, fill = as.factor(value))) +
   geom_raster() +
-  facet_grid(Kvar ~ K0) +
-  scale_fill_gradient2(low="dodgerblue4", mid="white", high="yellow", 
-                       midpoint=600, limits=range(filter(df, variable=="toxin", surv=="Full")$mean)) +
+  facet_grid(~R0) +
+  scale_fill_manual(values=c(colgreen, colpink), name="") +
+  xlab("Vaccination rate (vc)") + ylab("Quarantine rate (q)") +
   theme(strip.background = element_blank())
 
-p_prt <- ggplot(data = filter(df, variable=="pathogen", surv=="Full"), aes(omega, d, fill = mean)) +
+p_popinf <- ggplot(data = filter(final_df, variable=="infection"), aes(vc, q, fill = value)) +
   geom_raster() +
-  facet_grid(Kvar ~ K0) +
+  facet_grid(~ R0) +
   scale_fill_gradient2(low="dodgerblue4", mid="white", high="yellow", 
-                       midpoint=3E7, limits=range(filter(df, variable=="pathogen", surv=="Full")$mean)) +
-  theme(strip.background = element_blank())
-
-p_infD <- ggplot(data = filter(df, variable=="infD", surv=="Full"), aes(omega, d, fill = mean)) +
-  geom_raster() +
-  facet_grid(Kvar ~ K0) +
-  scale_fill_gradient2(low="dodgerblue4", mid="white", high="yellow", 
-                       midpoint=70, limits=range(filter(df, variable=="infD", surv=="Full")$mean)) +
-  theme(strip.background = element_blank())
-
-p_strat <- ggplot(data = filter(df, variable=="strategy", surv=="Full"), aes(omega, d, fill = mean)) +
-  geom_raster() +
-  facet_grid(Kvar ~ K0) +
-  scale_fill_gradient2(low="dodgerblue4", mid="white", high="yellow", 
-                       midpoint=0.5, limits=range(filter(df, variable=="strategy", surv=="Full")$mean)) +
+                       midpoint=0, limits=range(filter(final_df, variable=="infection")$value)) +
+  xlab("Vaccination rate (vc)") + ylab("Quarantine rate (q)") +
   theme(strip.background = element_blank())
 
 ### DRAW PLOTS
 (summary_plot_survFull <- ggpubr::ggarrange(p_toxin, p_prt, p_infD, p_strat,
-                                            ncol=1, labels=c("Toxin load","Pathogen count","Infection duration", "Strategy"),
+                                            ncol=1, labels=c("Stability","Infected population"),
                                             hjust = -0.1,
                                             font.label = list(size = 5)))
 
