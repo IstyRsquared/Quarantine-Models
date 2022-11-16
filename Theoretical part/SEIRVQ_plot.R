@@ -92,6 +92,7 @@ stability_grid <- gridExtra::grid.arrange(g1, g2,
 #                                                    byrow = TRUE, nrow = 4))
 
 ################# INFECTION PLOTS #################
+## Exact inf numbers
 p_popinf <- ggplot(data = filter(final_df, variable=="infection"), aes(vc, q, fill = value)) +
   geom_raster() +
   facet_grid(~ R0, labeller = to_string) +
@@ -118,11 +119,37 @@ infection_grid <- gridExtra::grid.arrange(g1, g2,
                                                      1, 1, 1, 2, 2, 2, 2, 2, 2),
                                                    byrow = TRUE, nrow = 2))
 ### DRAW PLOTS
-(summary_plot_survFull <- ggpubr::ggarrange(stability_grid, infection_grid,
+(Stability_InfectedPop_Grid <- ggpubr::ggarrange(stability_grid, infection_grid,
                                             ncol=1, labels=c("Stability","Infected population"),
                                             hjust = -0.1,
                                             font.label = list(size = 5)))
 
-# ggsave(faceted_raster_plot, device="png")
-ggsave("Stability_Infection_Grid.png", width = 10, height = 17, units = "cm")
-# ggsave("faceted_raster_plotA4.png", width = 21, height = 29, units = "cm")
+ggsave("figs/Stability_InfectedPop.png", width = 20, height = 18, units = "cm")
+
+## Infection +/-
+df.temp <- tibble(inf_dat)%>%
+  mutate(value2 = ifelse(value>0, 1, 0))
+         
+p_popinf <- ggplot(data = filter(df.temp, variable=="infection"), aes(vc, q, fill = as.factor(value2))) +
+  geom_raster() +
+  facet_grid(~ R0, labeller = to_string) +
+  scale_fill_manual(values=c(colpink, colgreen), name="", labels=c("=<0", ">0")) +
+  xlab("Vaccination rate (vc)") + ylab("Quarantine rate (q)") +
+  theme(strip.background = element_blank())
+
+g1 <- p_popinf %+% dplyr::filter(df.temp, R0 == 1) + theme(legend.position = "none")
+g2 <- p_popinf %+% dplyr::filter(df.temp, R0 != 1) + facet_wrap(~R0, nrow=2)
+
+infection_grid <- gridExtra::grid.arrange(g1, g2,
+                                          layout_matrix = 
+                                            matrix(c(1, 1, 1, 2, 2, 2, 2, 2, 2,
+                                                     1, 1, 1, 2, 2, 2, 2, 2, 2),
+                                                   byrow = TRUE, nrow = 2))
+### DRAW PLOTS
+(Stability_Infection_Grid <- ggpubr::ggarrange(stability_grid, infection_grid,
+                                               ncol=1, labels=c("Stability","Infection"),
+                                               hjust = -0.1,
+                                               font.label = list(size = 5)))
+
+ggsave("figs/Stability_Infection_Grid.png", width = 20, height = 18, units = "cm")
+
