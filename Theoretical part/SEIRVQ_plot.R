@@ -31,9 +31,9 @@ pal <- hp(n=8, option = "LunaLovegood")
 plot(1:8, 1:8, col=pal, pch=16, cex=3)
 colpink <- pal[6]
 
-col <- colorRampPalette(c(colgreen, colpink))(30) 
+col <- colorRampPalette(c(colgreen, colpink))(15) 
 col.more <- colorRampPalette(c(collightgreen, colpink))(60)
-plot(1:30, 1:30, col=col, pch=16, cex=3)
+plot(1:15, 1:15, col=col, pch=16, cex=3)
 plot(1:60, 1:60, col=col.more, pch=16, cex=3)
 
 # test <- filter(final_df, variable=="stability", R0=="1.5")
@@ -95,13 +95,28 @@ stability_grid <- gridExtra::grid.arrange(g1, g2,
 p_popinf <- ggplot(data = filter(final_df, variable=="infection"), aes(vc, q, fill = value)) +
   geom_raster() +
   facet_grid(~ R0, labeller = to_string) +
-  scale_fill_gradient2(low="dodgerblue4", mid="white", high="yellow", 
+  scale_fill_gradient2(low=colgreen, mid="white", high=colpink, 
                        midpoint=0, limits=range(filter(final_df, variable=="infection")$value)) +
   xlab("Vaccination rate (vc)") + ylab("Quarantine rate (q)") +
   theme(strip.background = element_blank())
 
+# maybe change abive and below 0
+# p_popinf <- ggplot(data = filter(final_df, variable=="infection"), aes(vc, q, fill = value)) +
+#   geom_raster() +
+#   facet_grid(~ R0, labeller = to_string) +
+#   scale_fill_gradientn(colours=col) +
+#   xlab("Vaccination rate (vc)") + ylab("Quarantine rate (q)") +
+#   theme(strip.background = element_blank())
 
+inf_dat <- filter(final_df, variable=="infection")
+g1 <- p_popinf %+% dplyr::filter(inf_dat, R0 == 1) + theme(legend.position = "none")
+g2 <- p_popinf %+% dplyr::filter(inf_dat, R0 != 1) + facet_wrap(~R0, nrow=2)
 
+infection_grid <- gridExtra::grid.arrange(g1, g2,
+                                          layout_matrix = 
+                                            matrix(c(1, 1, 1, 2, 2, 2, 2, 2, 2,
+                                                     1, 1, 1, 2, 2, 2, 2, 2, 2),
+                                                   byrow = TRUE, nrow = 2))
 ### DRAW PLOTS
 (summary_plot_survFull <- ggpubr::ggarrange(stability_grid, infection_grid,
                                             ncol=1, labels=c("Stability","Infected population"),
@@ -109,5 +124,5 @@ p_popinf <- ggplot(data = filter(final_df, variable=="infection"), aes(vc, q, fi
                                             font.label = list(size = 5)))
 
 # ggsave(faceted_raster_plot, device="png")
-ggsave("summary_plot_survFull.png", width = 10, height = 17, units = "cm")
+ggsave("Stability_Infection_Grid.png", width = 10, height = 17, units = "cm")
 # ggsave("faceted_raster_plotA4.png", width = 21, height = 29, units = "cm")
