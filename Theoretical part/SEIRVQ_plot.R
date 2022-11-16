@@ -24,17 +24,13 @@ to_string <- as_labeller(c(`1` = supp.labs[1], `1.1` = supp.labs[2], `1.2` = sup
 
 pal <- hp(n = 10, house = "Slytherin")
 plot(1:10, 1:10, col=pal, pch=16, cex=3)
-colgreen <- pal[5]
-collightgreen <- pal[2]
+colgreen <- pal[5]; collightgreen <- pal[2]
 
 pal <- hp(n=8, option = "LunaLovegood")
 plot(1:8, 1:8, col=pal, pch=16, cex=3)
 colpink <- pal[6]
 
-col <- colorRampPalette(c(colgreen, colpink))(15) 
-col.more <- colorRampPalette(c(collightgreen, colpink))(60)
-plot(1:15, 1:15, col=col, pch=16, cex=3)
-plot(1:60, 1:60, col=col.more, pch=16, cex=3)
+col <- colorRampPalette(c(colgreen, colpink))(15); plot(1:15, 1:15, col=col, pch=16, cex=3)
 
 # test <- filter(final_df, variable=="stability", R0=="1.5")
 # unique(test$value)
@@ -92,7 +88,7 @@ stability_grid <- gridExtra::grid.arrange(g1, g2,
 #                                                    byrow = TRUE, nrow = 4))
 
 ################# INFECTION PLOTS #################
-## Exact inf numbers
+### A) Exact inf numbers
 p_popinf <- ggplot(data = filter(final_df, variable=="infection"), aes(vc, q, fill = value)) +
   geom_raster() +
   facet_grid(~ R0, labeller = to_string) +
@@ -118,7 +114,7 @@ infection_grid <- gridExtra::grid.arrange(g1, g2,
                                             matrix(c(1, 1, 1, 2, 2, 2, 2, 2, 2,
                                                      1, 1, 1, 2, 2, 2, 2, 2, 2),
                                                    byrow = TRUE, nrow = 2))
-### DRAW PLOTS
+## Bind
 (Stability_InfectedPop_Grid <- ggpubr::ggarrange(stability_grid, infection_grid,
                                             ncol=1, labels=c("Stability","Infected population"),
                                             hjust = -0.1,
@@ -126,14 +122,14 @@ infection_grid <- gridExtra::grid.arrange(g1, g2,
 
 ggsave("figs/Stability_InfectedPop.png", width = 20, height = 18, units = "cm")
 
-## Infection +/-
+### B) Infection +/-
 df.temp <- tibble(inf_dat)%>%
   mutate(value2 = ifelse(value>0, 1, 0))
          
 p_popinf <- ggplot(data = filter(df.temp, variable=="infection"), aes(vc, q, fill = as.factor(value2))) +
   geom_raster() +
   facet_grid(~ R0, labeller = to_string) +
-  scale_fill_manual(values=c(colpink, colgreen), name="", labels=c("=<0", ">0")) +
+  scale_fill_manual(values=c(colgreen,colpink), name="", labels=c(">0", "=<0")) +
   xlab("Vaccination rate (vc)") + ylab("Quarantine rate (q)") +
   theme(strip.background = element_blank())
 
@@ -145,7 +141,7 @@ infection_grid <- gridExtra::grid.arrange(g1, g2,
                                             matrix(c(1, 1, 1, 2, 2, 2, 2, 2, 2,
                                                      1, 1, 1, 2, 2, 2, 2, 2, 2),
                                                    byrow = TRUE, nrow = 2))
-### DRAW PLOTS
+## Bind
 (Stability_Infection_Grid <- ggpubr::ggarrange(stability_grid, infection_grid,
                                                ncol=1, labels=c("Stability","Infection"),
                                                hjust = -0.1,

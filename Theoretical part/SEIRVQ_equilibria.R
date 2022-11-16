@@ -37,10 +37,12 @@ vcs <- ifelse(is.infinite(-log(1-vcs)/1), vcs, -log(1-vcs)/1)
 params_grid <- expand.grid(list(R0 = R0s, # reproductive number
                                 q = qs, # quarantine rate
                                 vc = vcs)) # vaccination rate
-# test=filter(params_grid, R0==1.5)
-params_grid <- expand.grid(list(R0 = 2, # reproductive number
-                                q = qs, # quarantine rate
-                                vc = vcs)) # vaccination rate
+
+# # test
+# params_grid <- expand.grid(list(R0 = 2, # reproductive number
+#                                 q = qs, # quarantine rate
+#                                 vc = vcs)) # vaccination rate
+
 ## Initialize
 N <- 200000
 
