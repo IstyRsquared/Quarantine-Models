@@ -53,7 +53,7 @@ Istar.all <- c()
 Qstar.all <- c()
 Vstar.all <- c()
 
-## Loop through parametr space
+## Loop through parameter space
 for(idx in 1:nrow(params_grid)){
   R0 <- params_grid$R0[idx]
   q <- params_grid$q[idx]
@@ -121,7 +121,7 @@ params <- expand.grid(list(R0 = seq(1, 2, 0.1), # reproductive number
                            q = seq(0, 1, 0.05) , # quarantine rate
                            vc = seq(0, 1, 0.05))) # vaccination rate
 
-sign_df <- cbind(params, variable=rep("stability", length(sign)), value=as.numeric(sign))
+sign_df <- cbind(params_grid, variable=rep("stability", length(sign)), value=as.numeric(sign))
 period_df <- cbind(params, variable=rep("period", length(periods.all)), value=as.numeric(periods.all))
 inf_df <- cbind(params, variable=rep("infection", length(infection)), value=as.numeric(infection))
 

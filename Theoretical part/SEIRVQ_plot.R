@@ -8,14 +8,20 @@ setwd("C:/Users/tui9/Documents/Practice code/Quarantine-Models")
 
 ## Libraries 
 library(harrypotter)
-library("tidyverse")
+library(tidyverse)
+library(gridExtra)
 # library("ggpubr")
 
 ## Data
 final_df <- read.csv("output/SEIRVQrabies_EndemicEquilibrium.csv")
 unique(final_df$R0) # 11
 
-## test
+## Prep col and labels
+supp.labs <- paste("R0 =", unique(final_df$R0))
+to_string <- as_labeller(c(`1` = supp.labs[1], `1.1` = supp.labs[2], `1.2` = supp.labs[3], `1.3` = supp.labs[4], `1.4` = supp.labs[5],
+                           `1.5` = supp.labs[6], `1.6` = supp.labs[7], `1.7` = supp.labs[8], `1.8` = supp.labs[9], `1.9` = supp.labs[10], 
+                           `2` = supp.labs[11]))
+
 pal <- hp(n = 10, house = "Slytherin")
 plot(1:10, 1:10, col=pal, pch=16, cex=3)
 colgreen <- pal[5]
@@ -30,21 +36,14 @@ col.more <- colorRampPalette(c(collightgreen, colpink))(60)
 plot(1:30, 1:30, col=col, pch=16, cex=3)
 plot(1:60, 1:60, col=col.more, pch=16, cex=3)
 
-test <- filter(final_df, variable=="stability", R0=="1.5")
-unique(test$value)
-ggplot(test, aes( x=vc, y=q, fill = value)) +
-  geom_raster()
-
-y=unique(test$q)
-x=unique(test$vc) # the order doesn't match!
-z=matrix(test$value, ncol=length(y), nrow=length(x))
-image(x=x, y=y, z=z, xlab="qP", ylab="vcP", col=col.more, main="Stability", cex.axis=.6, cex.main=.75, cex.lab=.7)
-
-
-df <- tibble(final_df) %>%
-  mutate(surv = ifelse(is.na(surv), "Full", "Half"),
-         Kvar = ifelse(Kvar==TRUE, "Fluctuate", "Constant"),
-         omega = factor(omega), d = factor(Basemorts))
+# test <- filter(final_df, variable=="stability", R0=="1.5")
+# unique(test$value)
+# ggplot(test, aes( x=vc, y=q, fill = value)) +
+#   geom_raster()
+# y=unique(test$q)
+# x=unique(test$vc) # the order doesn't match!
+# z=matrix(test$value, ncol=length(y), nrow=length(x))
+# image(x=x, y=y, z=z, xlab="qP", ylab="vcP", col=col.more, main="Stability", cex.axis=.6, cex.main=.75, cex.lab=.7)
 
 ### SET UP
 theme_set(theme_bw() +
@@ -59,24 +58,52 @@ theme_set(theme_bw() +
                   text=element_text(size=5),
                   legend.key.size = unit(0.3, 'cm')))
 
-################# PREP PLOTS 1 #################
+################# STABILITY PLOTS #################
+# p_stability <- ggplot(data = filter(final_df, variable=="stability"), aes(vc, q, fill = as.factor(value))) +
+#   geom_raster() +
+#   facet_wrap(~R0, nrow=2) +
+#   scale_fill_manual(values=c(colgreen, colpink), name="") +
+#   xlab("Vaccination rate (vc)") + ylab("Quarantine rate (q)") +
+#   theme(strip.background = element_blank())
+
 p_stability <- ggplot(data = filter(final_df, variable=="stability"), aes(vc, q, fill = as.factor(value))) +
   geom_raster() +
-  facet_grid(~R0) +
-  scale_fill_manual(values=c(colgreen, colpink), name="") +
+  facet_wrap(~R0, labeller = to_string) +
+  scale_fill_manual(values=c(colgreen, colpink), name="", labels=c("stable", "unstable")) +
   xlab("Vaccination rate (vc)") + ylab("Quarantine rate (q)") +
   theme(strip.background = element_blank())
 
+stab_dat <- filter(final_df, variable=="stability")
+g1 <- p_stability %+% dplyr::filter(stab_dat, R0 == 1) + theme(legend.position = "none")
+g2 <- p_stability %+% dplyr::filter(stab_dat, R0 != 1) + facet_wrap(~R0, nrow=2)
+
+stability_grid <- gridExtra::grid.arrange(g1, g2,
+                        layout_matrix = 
+                          matrix(c(1, 1, 1, 2, 2, 2, 2, 2, 2,
+                                   1, 1, 1, 2, 2, 2, 2, 2, 2),
+                                 byrow = TRUE, nrow = 2))
+
+# stability_grid <- gridExtra::grid.arrange(g1, g2,
+#                                           layout_matrix = 
+#                                             matrix(c(1, 1, 1, NA, NA, NA, NA, NA, NA,
+#                                                      1, 1, 1, 2, 2, 2, 2, 2, 2,
+#                                                      1, 1, 1, 2, 2, 2, 2, 2, 2,
+#                                                      1, 1, 1, NA, NA, NA, NA, NA, NA),
+#                                                    byrow = TRUE, nrow = 4))
+
+################# INFECTION PLOTS #################
 p_popinf <- ggplot(data = filter(final_df, variable=="infection"), aes(vc, q, fill = value)) +
   geom_raster() +
-  facet_grid(~ R0) +
+  facet_grid(~ R0, labeller = to_string) +
   scale_fill_gradient2(low="dodgerblue4", mid="white", high="yellow", 
                        midpoint=0, limits=range(filter(final_df, variable=="infection")$value)) +
   xlab("Vaccination rate (vc)") + ylab("Quarantine rate (q)") +
   theme(strip.background = element_blank())
 
+
+
 ### DRAW PLOTS
-(summary_plot_survFull <- ggpubr::ggarrange(p_toxin, p_prt, p_infD, p_strat,
+(summary_plot_survFull <- ggpubr::ggarrange(stability_grid, infection_grid,
                                             ncol=1, labels=c("Stability","Infected population"),
                                             hjust = -0.1,
                                             font.label = list(size = 5)))
