@@ -5,6 +5,7 @@
 
 rm(list=ls())
 setwd("C:/Users/tui9/Documents/Practice code/Quarantine-Models")
+setwd("~/Documents/Rabies_Warwick/Quarantine-models")
 
 ## Libraries 
 library(harrypotter)
@@ -32,14 +33,14 @@ colpink <- pal[6]
 
 col <- colorRampPalette(c(colgreen, colpink))(15); plot(1:15, 1:15, col=col, pch=16, cex=3)
 
-# test <- filter(final_df, variable=="stability", R0=="1.5")
-# unique(test$value)
-# ggplot(test, aes( x=vc, y=q, fill = value)) +
-#   geom_raster()
-# y=unique(test$q)
-# x=unique(test$vc) # the order doesn't match!
-# z=matrix(test$value, ncol=length(y), nrow=length(x))
-# image(x=x, y=y, z=z, xlab="qP", ylab="vcP", col=col.more, main="Stability", cex.axis=.6, cex.main=.75, cex.lab=.7)
+test <- filter(final_df, variable=="stability", R0=="1.5")
+unique(test$value)
+ggplot(test, aes( x=vc, y=q, fill = value)) +
+  geom_tile()
+y=unique(test$q)
+x=unique(test$vc) 
+z=matrix(test$value, ncol=length(y), nrow=length(x))
+image(x=x, y=y, z=z, xlab="qP", ylab="vcP", col=col.more, main="Stability", cex.axis=.6, cex.main=.75, cex.lab=.7)
 
 ### SET UP
 theme_set(theme_bw() +
