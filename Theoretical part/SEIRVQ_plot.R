@@ -99,27 +99,27 @@ stability_grid <- gridExtra::grid.arrange(g1, g2,
 # image(x=x, y=y, z=z, xlab="qP", ylab="vcP", col=col, main="Infection", cex.axis=.6, cex.main=.75, cex.lab=.7)
 
 ### A) Exact inf numbers
-# for unstable NA, rest by number!
-# (try on log scale)
-p_popinf <- ggplot(data = filter(final_df, variable=="infection"), aes(vc, q, fill = value)) +
-  geom_raster() +
-  facet_wrap(~ R0, labeller = to_string) +
-  scale_fill_gradient2(low=colgreen, mid="white", high=colpink, 
-                       midpoint=0, limits=range(filter(final_df, variable=="infection")$value)) +
-  xlab("Vaccination rate (vc)") + ylab("Quarantine rate (q)") +
-  theme(strip.background = element_blank())
+inf_dat <- filter(final_df, variable=="infection")
+inf.dogs <- tibble(inf_dat)%>%
+  mutate(value=ifelse(value<0, NA, value)) # for unstable NA, rest by number!
 
-# maybe change abive and below 0
 # p_popinf <- ggplot(data = filter(final_df, variable=="infection"), aes(vc, q, fill = value)) +
 #   geom_raster() +
-#   facet_grid(~ R0, labeller = to_string) +
-#   scale_fill_gradientn(colours=col) +
+#   facet_wrap(~ R0, labeller = to_string) +
+#   scale_fill_gradient2(low=colgreen, mid="white", high=colpink, 
+#                        midpoint=0, limits=range(filter(final_df, variable=="infection")$value)) +
 #   xlab("Vaccination rate (vc)") + ylab("Quarantine rate (q)") +
 #   theme(strip.background = element_blank())
 
-inf_dat <- filter(final_df, variable=="infection")
-g1 <- p_popinf %+% dplyr::filter(inf_dat, R0 == 1) + theme(legend.position = "none")
-g2 <- p_popinf %+% dplyr::filter(inf_dat, R0 != 1) + facet_wrap(~R0, nrow=2)
+p_popinf <- ggplot(data = filter(inf.dogs, variable=="infection"), aes(vc, q, fill = value)) +
+  geom_raster() +
+  facet_wrap(~ R0, labeller = to_string) +
+  xlab("Vaccination rate (vc)") + ylab("Quarantine rate (q)") +
+  scale_fill_gradientn(colours=col, na.value = "gray90") +
+  theme(strip.background = element_blank()) 
+
+g1 <- p_popinf %+% dplyr::filter(inf.dogs, R0 == 1) + theme(legend.position = "none")
+g2 <- p_popinf %+% dplyr::filter(inf.dogs, R0 != 1) + facet_wrap(~R0, nrow=2)
 
 infection_grid <- gridExtra::grid.arrange(g1, g2,
                                           layout_matrix = 
@@ -128,7 +128,7 @@ infection_grid <- gridExtra::grid.arrange(g1, g2,
                                                    byrow = TRUE, nrow = 2))
 ## Bind
 (Stability_InfectedPop_Grid <- ggpubr::ggarrange(stability_grid, infection_grid,
-                                            ncol=1, labels=c("Stability","Infected population"),
+                                            ncol=1, labels=c("A/ Stability","B/ Infected population"),
                                             hjust = -0.1,
                                             font.label = list(size = 5)))
 
