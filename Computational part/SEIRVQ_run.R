@@ -9,34 +9,63 @@ setwd("~/Documents/Rabies_Warwick/Quarantine-models")
 
 ### Libraries 
 source("R/TauLeap_SEIRfc_vacc_explicit_updated.R")
-source("R/thesis_params.R")
+source("R/model_params.R")
 source("R/thesis_vaccination_params.R")
 
 ### Parameters 
-parameters <- vector("list", length=2)
-# vaccweekly5yrs <- 0.5*vaccweekly5yrs # reduce vaccination coverage by 50% 
-vaccweekly5yrs <- vaccweekly5yrs + (0.5*vaccweekly5yrs) # increase vaccination coverage by 50% 
-parameters[[1]] <- c(0, vaccweekly5yrs) 
-parameters[[2]] <- params3 # params1, params2, params3 (different quarantine treatments)
-
-### Initial conditions 
-initials <- c(S=S, V1=V1, V2=V2, V3=V3, E=E, I=I, Qs=0, Qer=0, Qeb=0, Qi=0,
-              Rill=0, Sh=1324935, Eh=0, Ih=0,Rh=0, Vhs=0, Vhe=0) 
-# humpop Google: 1,314,826 in 2015, mine: 1,324,935
-
+## Simulation
 end.time <- 52*5
 nsim <- 1000
-allout <- vector("list", length=nsim)
-allcounts <- vector("list", length=nsim)
 
-### Run the model: simulations
-for(sim in 1:nsim){
-  sierTL.out <- SEIR.tauleap(init = initials, pars = parameters,
-                             end.time = end.time, tau=1) # 1/52 weekly steps
-  allout[[sim]] <- as.matrix(sierTL.out$results)
-  allcounts[[sim]] <- as.matrix(sierTL.out$counts)
-  print(sim)
+## Disease
+R0s <- seq(1, 2, 0.1) 
+sqcs <- 1:3 
+vcs <- seq(1, 3, 1) 
+
+params_grid <- expand.grid(list(R0 = R0s, # reproductive number
+                                sqc = sqcs, # quarantine scenarios
+                                vc = vcs)) # vaccination scenarios
+
+for(idx in 1:nrow(params_grid)){
+  ### Initial conditions 
+  initials <- c(S=S, V1=V1, V2=V2, V3=V3, E=E, I=I, Qs=0, Qer=0, Qeb=0, Qi=0,
+                Rill=0, Sh=1324935, Eh=0, Ih=0,Rh=0, Vhs=0, Vhe=0) 
+  
+  allout <- vector("list", length=nsim)
+  allcounts <- vector("list", length=nsim)
+  
+  # parameters
+  parameters <- vector("list", length=2)
+  # vaccweekly5yrs <- 0.5*vaccweekly5yrs # reduce vaccination coverage by 50% 
+  vaccweekly5yrs <- vaccweekly5yrs + (0.5*vaccweekly5yrs) # increase vaccination coverage by 50% 
+  parameters[[1]] <- c(0, vaccweekly5yrs) 
+  
+  parameters[[2]] <- params_list[[params_grid$sqc[idx]]] 
+  parameters[[2]]["R0"] <-  params_grid$R0[idx]
+  parameters[[2]]["Rprob"] <- parameters[[2]]["size"]/(parameters[[2]]["R0"]+parameters[[2]]["size"])
+  
+  p <- k/(R0+k)
+  ### Run the model: simulations
+  for(sim in 1:nsim){
+    sierTL.out <- SEIR.tauleap(init = initials, pars = parameters,
+                               end.time = end.time, tau=1) # 1/52 weekly steps
+    allout[[sim]] <- as.matrix(sierTL.out$results)
+    allcounts[[sim]] <- as.matrix(sierTL.out$counts)
+    print(sim)
+  }
+  
+  
+  ## Extract infor & save
+  
+  
+  
+  
 }
+
+
+
+
+
 
 ## original
 # saveRDS(allout, "output/out_thesis_scenario1.Rdata") # params 1
