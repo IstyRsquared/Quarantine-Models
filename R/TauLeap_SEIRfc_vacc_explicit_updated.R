@@ -72,7 +72,7 @@ SEIR.tauleap <- function(init, pars, end.time, tau){
       
       if(sum(Rnull.temp)!=0){ 
         new.bitestemp <- sum(Rnull.temp)*tau*params["gamma"] - floor(sum(Rnull.temp)*tau*params["gamma"]) 
-        # print(paste0("new bites temp:", new.bitestemp)) # here gamma needs to be 1 otherwise it fucks things up..
+        # print(paste0("new bites temp:", new.bitestemp))
         if(runif(1)<new.bitestemp){
           new.bites <- floor(sum(Rnull.temp)*tau*params["gamma"])+1
         }else{
