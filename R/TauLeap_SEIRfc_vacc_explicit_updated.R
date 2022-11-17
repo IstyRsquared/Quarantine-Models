@@ -1,10 +1,10 @@
-## Hong KONG model development
+## Quarantine model 
 ## Name: Isty Rysava
-## Date: 18/06/18
-## Code: SEIR tauleap model function
-## features: biased vaccination, incursions, explicit biting behaviour, quarantine
+## Date: 06/29/2022
+## Code: Computational part - SEI(R)VQ tauleap model function
+##  features: biased vaccination, incursions, explicit biting behaviour, quarantine 
 
-# install.packages("~/Downloads/compoisson_0.3.tar", repos = NULL, type="source")
+# install.packages("C:/Users/tui9/Downloads/compoisson_0.3.tar", repos = NULL, type="source")
 library(compoisson)
 library(truncnorm)
 

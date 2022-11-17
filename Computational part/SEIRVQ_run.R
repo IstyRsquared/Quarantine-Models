@@ -4,7 +4,8 @@
 ## Code: runs  SEIR.tauleap model to test intervention scenarios (as per "thesis_params.R")
 
 rm(list=ls())
-setwd("~/Dropbox/HongKong")
+setwd("C:/Users/tui9/Documents/Practice code/Quarantine-Models")
+setwd("~/Documents/Rabies_Warwick/Quarantine-models")
 
 ### Libraries 
 source("R/TauLeap_SEIRfc_vacc_explicit_updated.R")
@@ -13,8 +14,8 @@ source("R/thesis_vaccination_params.R")
 
 ### Parameters 
 parameters <- vector("list", length=2)
-# vaccweekly5yrs <- 0.5*vaccweekly5yrs # reduce vaccination covergae by 50% 
-vaccweekly5yrs <- vaccweekly5yrs + (0.5*vaccweekly5yrs) # increase vaccination covergae by 50% 
+# vaccweekly5yrs <- 0.5*vaccweekly5yrs # reduce vaccination coverage by 50% 
+vaccweekly5yrs <- vaccweekly5yrs + (0.5*vaccweekly5yrs) # increase vaccination coverage by 50% 
 parameters[[1]] <- c(0, vaccweekly5yrs) 
 parameters[[2]] <- params3 # params1, params2, params3 (different quarantine treatments)
 
@@ -115,7 +116,7 @@ sum(counts$I)
 sum(counts$Rill)
 
 # plot(seq(0, end.time, by=1), out[,12], type="l") # dead dogs
-# lines(seq(0, end.time, by=1), out[,16], col="red") # dead humans: this is a large number, but probably beacuse of so many infected dogs
+# lines(seq(0, end.time, by=1), out[,16], col="red") # dead humans: this is a large number, but probably because of so many infected dogs
 
 # PEP uptake
 plot(seq(0, end.time, by=1), counts$Vhs, type="l") # Vhs
@@ -126,7 +127,6 @@ sum(counts$Eh)
 sum(counts$Ih)
 sum(counts$Rh)
 
-# # Thesis word count
-# 736+3799+2767+1159+6040+3645+1904+1262+2030
+
 
 

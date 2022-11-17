@@ -30,9 +30,9 @@ delta <- (b-d)/K
 ## Set up parametr grid to explore
 R0s <- seq(1, 2, 0.1) 
 qs <- seq(0, 1, 0.05) 
-qs <- ifelse(is.infinite(-log(1-qs)/1), 3, -log(1-qs)/1)
+qs <- ifelse(is.infinite(-log(1-qs)/1), qs, -log(1-qs)/1)
 vcs <-  seq(0, 1, 0.05)
-vcs <- ifelse(is.infinite(-log(1-vcs)/53), vcs, -log(1-vcs)/53)
+vcs <- ifelse(is.infinite(-log(1-vcs)/1), vcs, -log(1-vcs)/1)
 
 params_grid <- expand.grid(list(R0 = R0s, # reproductive number
                                 q = qs, # quarantine rate
@@ -123,7 +123,7 @@ params <- expand.grid(list(R0 = seq(1, 2, 0.1), # reproductive number
                            q = seq(0, 1, 0.05) , # quarantine rate
                            vc = seq(0, 1, 0.05))) # vaccination rate
 
-sign_df <- cbind(params, variable=rep("stability", length(sign)), value=as.numeric(sign))
+sign_df <- cbind(params_grid, variable=rep("stability", length(sign)), value=as.numeric(sign))
 period_df <- cbind(params, variable=rep("period", length(periods.all)), value=as.numeric(periods.all))
 inf_df <- cbind(params, variable=rep("infection", length(infection)), value=as.numeric(infection))
 
