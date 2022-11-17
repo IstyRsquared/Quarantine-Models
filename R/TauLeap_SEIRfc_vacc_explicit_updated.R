@@ -4,12 +4,12 @@
 ## Code: Computational part - SEI(R)VQ tauleap model function
 ##  features: biased vaccination, incursions, explicit biting behaviour, quarantine 
 
-# install.packages("C:/Users/tui9/Downloads/compoisson_0.3.tar", repos = NULL, type="source")
 library(compoisson)
 library(truncnorm)
 
 SEIR.tauleap <- function(init, pars, end.time, tau){
   init2 <- init
+  
   Equations <- function(params, init, end.time, tau) {
     with(as.list(c(pars, init)), {
       x <- init
@@ -344,11 +344,6 @@ SEIR.tauleap <- function(init, pars, end.time, tau){
   t <- 0
   time <- seq(0, end.time, by = tau)
   for (t in 1:length(time)) {
-    ## time-dependant params sort out!! what?
-    vc.temp <- pars[[1]][t]
-    names(vc.temp) <- "vc"
-    params <- c(pars[[2]], vc.temp)
-
     tmp <- Equations(params, init, end.time, tau=tau)
     S <- c(S, init['S'])
     V1 <- c(V1, init['V1'])
