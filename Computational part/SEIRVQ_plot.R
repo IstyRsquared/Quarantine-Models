@@ -1,39 +1,18 @@
 ## Hong KONG model development
 ## Name: Isty Rysava
 ## Date: 27/06/18
-## Code: reads in similuation outputs of 3 quarantine scenarios and draws monthly ts of human and dog cases
+## Code: reads in simulation outputs of 3 quarantine scenarios and draws monthly ts of human and dog cases
 
 rm(list=ls())
 setwd("~/Dropbox/HongKong")
 library(harrypotter)
 
 ### Data 
-## original
-# # out
-# sc1 <- readRDS("output/out_thesis_scenario1.Rdata")
-# sc2 <- readRDS("output/out_thesis_scenario2..Rdata")
-# sc3 <- readRDS("output/out_thesis_scenario3.Rdata")
-# 
-# # counts (has dog and human deaths weekly)
-# sc1a <- readRDS("output/counts_thesis_scenario1.Rdata")
-# sc2a <- readRDS("output/counts_thesis_scenario2.Rdata")
-# sc3a <- readRDS("output/counts_thesis_scenario3.Rdata")
-
-## 50% vaccination
-# # counts (has dog and human deaths weekly)
-# sc1a <- readRDS("output/counts_thesis_scenario1halfvacc.Rdata")
-# sc2a <- readRDS("output/counts_thesis_scenario2halfvacc.Rdata")
-# sc3a <- readRDS("output/counts_thesis_scenario3halfvacc.Rdata")
-
-## extra 50% vaccination
-# counts (has dog and human deaths weekly)
-sc1a <- readRDS("output/counts_thesis_scenario1extravacc.Rdata")
-sc2a <- readRDS("output/counts_thesis_scenario2extravacc.Rdata")
-sc3a <- readRDS("output/counts_thesis_scenario3extravacc.Rdata")
+sc2 <- readRDS("counts_thesis_scenario2extravacc.Rdata")
 
 ### Set up a desired simulation to process ##
-sc <- sc3a
-name <- "sc3counts"
+sc <- sc2
+name <- "sc2counts"
 nsim <- length(sc)
 time <- 1:length(sc[[1]][,1])
 treatment <- "extravacc" # original, halfvacc, extravacc

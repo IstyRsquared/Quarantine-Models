@@ -1,7 +1,7 @@
 ## Quarantine model 
 ## Name: Isty Rysava
 ## Date: 08/02/18
-## Code: runs  SEIR.tauleap model to test intervention scenarios (as per "thesis_params.R")
+## Code: runs  SEIR.tauleap model to test intervention scenarios 
 
 rm(list=ls())
 setwd("C:/Users/tui9/Documents/Practice code/Quarantine-Models")
@@ -30,6 +30,8 @@ N <- 200000
 I <- round(49/56/0.05, digits=0) # assuming surveillance detected 5% of all cases in 13 months=56 weeks
 E <- round(4*I, digits=0)
 
+allout <- vector("list", length=nrow(params_grid))
+
 for(idx in 1:nrow(params_grid)){
   ### params
   parameters <- params_list[[params_grid$sqc[idx]]] 
@@ -38,7 +40,7 @@ for(idx in 1:nrow(params_grid)){
   parameters["vc"] <-  params_grid$vc[idx]
   
   ### inits
-  V <- round((-log(parameters["vc"]*53)-1)*N, digits=0)
+  V <- ifelse(parameters["vc"]==0, 0, round((-log(parameters["vc"]*53)-1)*N, digits=0))
   V.comp <- rowSums(rmultinom(n=V, size=1, prob=c(50, 30, 20)))
   V1 <- V.comp[1]; V2 <- V.comp[2]; V3 <- V.comp[3]
   S <- N - I - E - V
@@ -46,48 +48,32 @@ for(idx in 1:nrow(params_grid)){
   initials <- c(S=S, V1=V1, V2=V2, V3=V3, E=E, I=I, Qs=0, Qer=0, Qeb=0, Qi=0,
                 Rill=0, Sh=1324935, Eh=0, Ih=0,Rh=0, Vhs=0, Vhe=0) 
   
-  allout <- vector("list", length=nsim)
-  allcounts <- vector("list", length=nsim)
-  
   ### run the model
+  deadD <- matrix(NA, ncol=nsim, nrow=end.time+1)
+  expD <- matrix(NA, ncol=nsim, nrow=end.time+1)
+  infD <- matrix(NA, ncol=nsim, nrow=end.time+1)
+  deadH <- matrix(NA, ncol=nsim, nrow=end.time+1)
+  
   for(sim in 1:nsim){
     sierTL.out <- SEIR.tauleap(init = initials, pars = parameters,
                                end.time = end.time, tau=1) # 1/52 weekly steps
-    allout[[sim]] <- as.matrix(sierTL.out$results)
-    allcounts[[sim]] <- as.matrix(sierTL.out$counts)
+    pops.temp <- as.matrix(sierTL.out$counts)
+    colnames(pops.temp) <- c("S", "V1", "V2", "V3", "E", "I", "Qs", "Qer", "Qeb", "Qi", "Rill", "Sh", "Eh",
+                             "Ih", "Rh", "Vhs", "Vhe")
+    deadD[,sim] <- pops.temp[,"Rill"]
+    expD[,sim] <- pops.temp[,"E"]
+    infD[,sim] <- pops.temp[,"I"]
+    deadH[,sim] <- pops.temp[,"Rh"]
+    print(sim)
   }
   
-  
   ### extract info & save
-  
-  
+  allout[[idx]] <- list(deadD=deadD, expD=expD, infD=infD, deadH=deadH)
   print(params_grid[idx,])
   
 }
 
-## original
-# saveRDS(allout, "output/out_thesis_scenario1.Rdata") # params 1
-# saveRDS(allcounts, "output/counts_thesis_scenario1.Rdata") # params 1
-# saveRDS(allout, "output/out_thesis_scenario2.Rdata") # params 2
-# saveRDS(allcounts, "output/counts_thesis_scenario2.Rdata") # params 2
-# saveRDS(allout, "output/out_thesis_scenario3.Rdata") # params 3
-# saveRDS(allcounts, "output/counts_thesis_scenario3.Rdata") # params 3
-
-## 50% vaccination
-# saveRDS(allout, "output/out_thesis_scenario1halfvacc.Rdata") # params 1
-# saveRDS(allcounts, "output/counts_thesis_scenario1halfvacc.Rdata") # params 1
-# saveRDS(allout, "output/out_thesis_scenario2halfvacc.Rdata") # params 2
-# saveRDS(allcounts, "output/counts_thesis_scenario2halfvacc.Rdata") # params 2
-# saveRDS(allout, "output/out_thesis_scenario3halfvacc.Rdata") # params 3
-# saveRDS(allcounts, "output/counts_thesis_scenario3halfvacc.Rdata") # params 3
-
-## extra 50% vaccination
-# saveRDS(allout, "output/out_thesis_scenario1extravacc.Rdata") # params 1
-# saveRDS(allcounts, "output/counts_thesis_scenario1extravacc.Rdata") # params 1
-# saveRDS(allout, "output/out_thesis_scenario2extravacc.Rdata") # params 2
-# saveRDS(allcounts, "output/counts_thesis_scenario2extravacc.Rdata") # params 2
-# saveRDS(allout, "output/out_thesis_scenario3extravacc.Rdata") # params 3
-# saveRDS(allcounts, "output/counts_thesis_scenario3extravacc.Rdata") # params 3
+# saveRDS(allout, "output/MS_sim_runs.Rdata") # params 1
 
 # ### Run the model: testing
 # end.time <- 52*5
