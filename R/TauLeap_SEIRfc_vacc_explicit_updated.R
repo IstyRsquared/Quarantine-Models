@@ -65,14 +65,14 @@ SEIR.tauleap <- function(init, pars, end.time, tau){
       ## 1) R0 dogs and humans
       # dogs R0
       if(I>0){
-        Rnull.temp <- rnbinom(I, mu=params["R0"], size=params["size"])
+        Rnull.temp <- rnbinom(I, size=params["size"], prob=params["Rprob"])
       }else{
         Rnull.temp <- 0
       }
       
       if(sum(Rnull.temp)!=0){ 
         new.bitestemp <- sum(Rnull.temp)*tau*params["gamma"] - floor(sum(Rnull.temp)*tau*params["gamma"]) 
-        # print(paste0("new bites temp:", new.bitestemp)) # here gamma needs to be 1 otherwise if fucks things up..
+        # print(paste0("new bites temp:", new.bitestemp)) # here gamma needs to be 1 otherwise it fucks things up..
         if(runif(1)<new.bitestemp){
           new.bites <- floor(sum(Rnull.temp)*tau*params["gamma"])+1
         }else{
@@ -94,7 +94,7 @@ SEIR.tauleap <- function(init, pars, end.time, tau){
       
       # humans R0: 
       if(I>0){
-        Rnullh.temp <- rnbinom(I, mu=params["R0h"], size=params["sizeh"])
+        Rnullh.temp <- rnbinom(I, size=params["sizeh"], prob=params["Rprobh"])
       }else{
         Rnullh.temp <- 0
       }
