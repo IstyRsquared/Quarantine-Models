@@ -32,7 +32,7 @@ R0s <- seq(1, 2, 0.1)
 qs <- seq(0, 1, 0.05) 
 qs <- ifelse(is.infinite(-log(1-qs)/1), qs, -log(1-qs)/1)
 vcs <-  seq(0, 1, 0.05)
-vcs <- ifelse(is.infinite(-log(1-vcs)/1), vcs, -log(1-vcs)/1)
+vcs <- ifelse(is.infinite(-log(1-vcs)/53), vcs, -log(1-vcs)/53)
 
 params_grid <- expand.grid(list(R0 = R0s, # reproductive number
                                 q = qs, # quarantine rate
