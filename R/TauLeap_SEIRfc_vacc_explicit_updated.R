@@ -209,7 +209,6 @@ SEIR.tauleap <- function(init, pars, end.time, tau){
       d <- params["d"] # death rate dogs
       sigma <- params["sigma"] # 1/incubation period dogs
       gamma <- params["gamma"] # recovery/removal rate dogs; 1/infectious period
-      gammaR <- params["gammaR"]
       vc <- params["vc"] # vaccination dogs
       vw <- params["vw"] # waning immunity dogs
       vv <- params["vv"] # vaccination bias
@@ -243,12 +242,12 @@ SEIR.tauleap <- function(init, pars, end.time, tau){
       # maybe here I need exposed back to sus 50% chance; -log(1-0.5)/2.5 weeks
       rate[7] <- sigma*E.old # sigma.rate
       change[7, ] <- c(0, 0, 0, 0, -1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-      rate[8] <- gammaR*I.old # gamma.rate
+      rate[8] <- gamma*I.old # gamma.rate
       change[8, ] <- c(0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0)
       
       rate[9] <- sigma*Qer.old # sigma.q
       change[9, ] <- c(0, 0, 0, 0, 0, 0, 0, -1, 0, 1, 0, 0, 0, 0, 0, 0, 0)
-      rate[10] <- gammaR*Qi.old # gamma.q
+      rate[10] <- gamma*Qi.old # gamma.q
       change[10, ] <- c(0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 1, 0, 0, 0, 0, 0, 0)
       
       rate[11] <- qr*Qs.old # qr.S 
@@ -344,6 +343,7 @@ SEIR.tauleap <- function(init, pars, end.time, tau){
   t <- 0
   time <- seq(0, end.time, by = tau)
   for (t in 1:length(time)) {
+    params <- pars
     tmp <- Equations(params, init, end.time, tau=tau)
     S <- c(S, init['S'])
     V1 <- c(V1, init['V1'])
