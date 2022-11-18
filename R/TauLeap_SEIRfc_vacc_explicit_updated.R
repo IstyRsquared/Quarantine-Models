@@ -322,7 +322,7 @@ SEIR.tauleap <- function(init, pars, end.time, tau){
         }
       }
       
-      ## Incursions 
+      ## #) Incursions 
       incs <- rpois(1, i)
       I <- I+incs
       counts["I"] <- counts["I"]+incs
