@@ -1,43 +1,55 @@
-## Hong KONG model development
+## Quarantine model 
 ## Name: Isty Rysava
-## Date: 27/06/18
-## Code: reads in simulation outputs of 3 quarantine scenarios and draws monthly ts of human and dog cases
+## Date: 18/11//22
+## Code: Reads in simulation outputs draws A) monthly ts of human and dog cases, 
+## B) boxplot of monthly infection
 
 rm(list=ls())
-setwd("~/Dropbox/HongKong")
+setwd("C:/Users/tui9/Documents/Practice code/Quarantine-Models")
 library(harrypotter)
 
 ### Data 
-sc2 <- readRDS("counts_thesis_scenario2extravacc.Rdata")
+allout <- readRDS("output/MS_sim_runs_test.Rdata")
+idx <- c(37, 38)
 
-### Set up a desired simulation to process ##
-sc <- sc2
-name <- "sc2counts"
-nsim <- length(sc)
-time <- 1:length(sc[[1]][,1])
-treatment <- "extravacc" # original, halfvacc, extravacc
+## Params set up
+R0s <- seq(1, 2, 0.1)
+sqcs <- paste("Scenario", 1:3) 
+vc.temp <-  c(0, 0.25, 0.5, 0.75)
 
-pathA <- paste0("output/", name, "_")
-pathB <- paste0("output/", name, "_monthly_")
-pathC <- paste("output/", name, "_statsmonthly_")
-pathD <- paste0("figs/monthly_ts_", name, "_", treatment, ".pdf")
+params_grid <- expand.grid(list(R0 = R0s, # reproductive number
+                                sqc = sqcs, # quarantine scenarios
+                                vc = vc.temp*100)) # vaccination scenarios
 
-## Substract populations of interest ##
-# initialize matrices
-deadD <- matrix(NA, ncol=nsim, nrow=length(time))
-deadH <- matrix(NA, ncol=nsim, nrow=length(time))
+end.time <- 52*5
+nsim <- 1000
 
-# populate
-for(i in 1:nsim){
-  colnames(sc[[i]]) <- c("S", "V1", "V2", "V3", "E", "I", "Qs", "Qer", "Qeb", "Qi", "Rill", "Sh", "Eh",
-                         "Ih", "Rh", "Vhs", "Vhe")
-  deadD[,i] <- sc[[i]][,"Rill"]
-  deadH[,i] <- sc[[i]][,"Rh"]
-}
-
-# save
-# write.csv(deadD, paste0(pathA, "deadD.csv"), row.names=F)
-# write.csv(deadH, paste0(pathA, "deadH.csv"), row.names=F)
+# sc2 <- readRDS("counts_thesis_scenario2extravacc.Rdata")
+# 
+# ### Set up a desired simulation to process ##
+# sc <- sc2
+# name <- "sc2counts"
+# nsim <- length(sc)
+# time <- 1:length(sc[[1]][,1])
+# treatment <- "extravacc" # original, halfvacc, extravacc
+# 
+# pathA <- paste0("output/", name, "_")
+# pathB <- paste0("output/", name, "_monthly_")
+# pathC <- paste("output/", name, "_statsmonthly_")
+# pathD <- paste0("figs/monthly_ts_", name, "_", treatment, ".pdf")
+# 
+# ## Substract populations of interest ##
+# # initialize matrices
+# deadD <- matrix(NA, ncol=nsim, nrow=length(time))
+# deadH <- matrix(NA, ncol=nsim, nrow=length(time))
+# 
+# # populate
+# for(i in 1:nsim){
+#   colnames(sc[[i]]) <- c("S", "V1", "V2", "V3", "E", "I", "Qs", "Qer", "Qeb", "Qi", "Rill", "Sh", "Eh",
+#                          "Ih", "Rh", "Vhs", "Vhe")
+#   deadD[,i] <- sc[[i]][,"Rill"]
+#   deadH[,i] <- sc[[i]][,"Rh"]
+# }
 
 ## Aggregate by month ##
 weeks <- seq(as.Date("2018-01-01"), as.Date("2022-12-31"), by="week")

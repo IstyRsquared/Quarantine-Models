@@ -75,7 +75,7 @@ for(idx in 1:nrow(params_grid)){
   
 }
 
-# saveRDS(allout, "output/MS_sim_runs.Rdata") 
+# saveRDS(allout, "output/MS_sim_runs_test.Rdata") 
 
 # ### Run the model: testing
 # end.time <- 52*5
