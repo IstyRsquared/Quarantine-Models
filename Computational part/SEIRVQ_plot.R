@@ -12,10 +12,7 @@ library(tidyverse)
 
 ### Data 
 allout <- readRDS("output/MS_sim_runs_test.Rdata")
-final_frame_box <- c()
-final_frame_ts <- c()
-
-idx <- c(37, 38)
+# idx <- c(37, 38)
 
 ## Params set up
 end.time <- 52*5
@@ -28,18 +25,19 @@ params_grid <- expand.grid(list(R0 = R0s, # reproductive number
                                 sqc = sqcs, # quarantine scenarios
                                 vc = vc.temp)) # vaccination scenarios
 
+final_frame_box <- c()
+final_list_ts <- vector("list", length=nrow(params_grid))
+
+weeks <- seq(as.Date("2018-01-01"), as.Date("2022-12-31"), by="week")
+months <- ((as.POSIXlt(strptime(weeks, format="%Y-%m-%d"))$year-118)*12) + as.POSIXlt(strptime(weeks, format="%Y-%m-%d"))$mon+1
+
 for(idx in 1:nrow(params_grid)){
-  out.temp <- allout[[idx]]
+  my.files <- allout[[idx]]
   
-  ## Aggregate by month ##
-  weeks <- seq(as.Date("2018-01-01"), as.Date("2022-12-31"), by="week")
-  months <- ((as.POSIXlt(strptime(weeks, format="%Y-%m-%d"))$year-118)*12) + as.POSIXlt(strptime(weeks, format="%Y-%m-%d"))$mon+1
-  
-  my.files <- out.temp
+  ## Aggregate by month 
   sum_mthly <- vector("list", length(my.files))
-  names(my.files) <- list("deadD", "expD", "infD", "deadH")
-  names(sum_mthly) <- list("deadD", "expD", "infD", "deadH")
-  
+  names(my.files) <- names(sum_mthly) <- list("deadD", "expD", "infD", "deadH")
+
   for(i in 1: length(my.files)){
     df.temp <- data.frame(my.files[[i]])
     sum_mthly[[i]] <- rowsum(df.temp, group=months)
@@ -65,26 +63,47 @@ for(idx in 1:nrow(params_grid)){
     stats_mthly[[i]] <- monthly_stats
   }
   
-  ## HERE!!!
-  stats_mthly[[1]]
-  final_frame_ts <- rbind(final_frame_ts, 
-                           data.frame(R0=params_grid$R0[idx], Quarantine=params_grid$sqc[idx], Vaccination=params_grid$vc[idx],
-                                      deadD=as.vector(t(sum_mthly[[1]])), expD=as.vector(t(sum_mthly[[2]])), 
-                                      infD=as.vector(t(sum_mthly[[3]])), deadH=as.vector(t(sum_mthly[[4]]))))
-  
-  
-  
+  final_list_ts[[idx]] <- stats_mthly
 }
 
+# saveRDS(final_list_ts, "output/MS_monthly_infection_ts.Rdata") 
+# write.csv(final_frame_box, "output/MS_monthly_infection_boxplot.csv", row.names=F) 
+
+
 #################################################################################################################################################
+### BOXPLOT
+## Set up theme
+theme_set(theme_bw() +
+            theme(panel.grid.major=element_blank(),
+                  panel.grid.minor=element_blank(),
+                  panel.border=element_blank(),
+                  axis.text=element_text(size=5),
+                  axis.title.x = element_text(size = 5),
+                  axis.title.y = element_text(size = 5),
+                  legend.title=element_blank(),
+                  legend.text = element_text(size = 4),
+                  text=element_text(size=5),
+                  legend.key.size = unit(0.3, 'cm')))
 data <- data.frame(team=rep(c('A', 'B', 'C'), each=50),
                    program=rep(c('low', 'high'), each=25),
                    values=seq(1:150)+sample(1:100, 150, replace=TRUE))
+
+supp.labs <- paste("R0 =", unique(final_frame_box$R0))
+to_string <- as_labeller(c(`1` = supp.labs[1], `1.1` = supp.labs[2], `1.2` = supp.labs[3], `1.3` = supp.labs[4], `1.4` = supp.labs[5],
+                           `1.5` = supp.labs[6], `1.6` = supp.labs[7], `1.7` = supp.labs[8], `1.8` = supp.labs[9], `1.9` = supp.labs[10], 
+                           `2` = supp.labs[11]))
 head(data)
 ggplot(data, aes(x=team, y=values, fill=program)) + 
   geom_boxplot() 
 
+## Draw plot
+p_box <- ggplot(data = final_frame_box, aes(x=Quarantine, y=expD+infD, fill=Vaccination)) +
+  geom_boxplot() +
+  facet_wrap(~R0, labeller = to_string) +
+  ylab("Monthly no. of infected dogs (E+I)") + xlab("Quarantine") +
+  theme(strip.background = element_blank())
 
+  # scale_fill_manual(values=c(colgreen, colpink), name="", labels=c("stable", "unstable")) + # will need to change colours
 
 ### Prepare colours
 pal <- hp(n = 10, house = "Slytherin")
