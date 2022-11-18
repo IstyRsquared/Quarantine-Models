@@ -5,90 +5,86 @@
 ## B) boxplot of monthly infection
 
 rm(list=ls())
+
 setwd("C:/Users/tui9/Documents/Practice code/Quarantine-Models")
 library(harrypotter)
+library(tidyverse)
 
 ### Data 
 allout <- readRDS("output/MS_sim_runs_test.Rdata")
+final_frame_box <- c()
+final_frame_ts <- c()
+
 idx <- c(37, 38)
 
 ## Params set up
-R0s <- seq(1, 2, 0.1)
-sqcs <- paste("Scenario", 1:3) 
-vc.temp <-  c(0, 0.25, 0.5, 0.75)
-
-params_grid <- expand.grid(list(R0 = R0s, # reproductive number
-                                sqc = sqcs, # quarantine scenarios
-                                vc = vc.temp*100)) # vaccination scenarios
-
 end.time <- 52*5
 nsim <- 1000
 
-# sc2 <- readRDS("counts_thesis_scenario2extravacc.Rdata")
-# 
-# ### Set up a desired simulation to process ##
-# sc <- sc2
-# name <- "sc2counts"
-# nsim <- length(sc)
-# time <- 1:length(sc[[1]][,1])
-# treatment <- "extravacc" # original, halfvacc, extravacc
-# 
-# pathA <- paste0("output/", name, "_")
-# pathB <- paste0("output/", name, "_monthly_")
-# pathC <- paste("output/", name, "_statsmonthly_")
-# pathD <- paste0("figs/monthly_ts_", name, "_", treatment, ".pdf")
-# 
-# ## Substract populations of interest ##
-# # initialize matrices
-# deadD <- matrix(NA, ncol=nsim, nrow=length(time))
-# deadH <- matrix(NA, ncol=nsim, nrow=length(time))
-# 
-# # populate
-# for(i in 1:nsim){
-#   colnames(sc[[i]]) <- c("S", "V1", "V2", "V3", "E", "I", "Qs", "Qer", "Qeb", "Qi", "Rill", "Sh", "Eh",
-#                          "Ih", "Rh", "Vhs", "Vhe")
-#   deadD[,i] <- sc[[i]][,"Rill"]
-#   deadH[,i] <- sc[[i]][,"Rh"]
-# }
+R0s <- seq(1, 2, 0.1)
+sqcs <- paste("Scenario", 1:3)
+vc.temp <-  c("0%", "25%", "50%", "75%")
+params_grid <- expand.grid(list(R0 = R0s, # reproductive number
+                                sqc = sqcs, # quarantine scenarios
+                                vc = vc.temp)) # vaccination scenarios
 
-## Aggregate by month ##
-weeks <- seq(as.Date("2018-01-01"), as.Date("2022-12-31"), by="week")
-months <- ((as.POSIXlt(strptime(weeks, format="%Y-%m-%d"))$year-118)*12) + as.POSIXlt(strptime(weeks, format="%Y-%m-%d"))$mon+1
-
-# initialize lists
-my.files <- list(deadD, deadH)
-sum_mthly <- vector("list", length(my.files))
-names(my.files) <- list("deadD", "deadH")
-names(sum_mthly) <- list("deadD", "deadH")
-
-# aggreagte
-for(i in 1: length(my.files)){
-  df.temp <- data.frame(my.files[[i]])
-  sum_mthly[[i]] <- rowsum(df.temp, group=months)
-}
-
-# save 
-# write.csv(sum_mthly[[4]], paste0(pathB, "deadD.csv"), row.names=F)
-# write.csv(sum_mthly[[5]], paste0(pathB, "deadH.csv"), row.names=F)
-
-### Calculate statistics ###
-# initialize list
-stats_mthly <- vector("list", length(sum_mthly))
-names(stats_mthly) <- list("deadD", "deadH")
-
-for(i in 1:length(sum_mthly)){
-  df.temp <- data.frame(sum_mthly[[i]])
-  monthly_stats <- data.frame(mean=as.numeric(rowMeans(df.temp)))
-  for(j in 1:nrow(monthly_stats)){
-    monthly_stats$upperPI[j] <- as.numeric(as.character(sort(df.temp[j,])[round(0.975*nsim)]))
-    monthly_stats$lowerPI[j] <- as.numeric(as.character(sort(df.temp[j,])[round(0.275*nsim)]))
+for(idx in 1:nrow(params_grid)){
+  out.temp <- allout[[idx]]
+  
+  ## Aggregate by month ##
+  weeks <- seq(as.Date("2018-01-01"), as.Date("2022-12-31"), by="week")
+  months <- ((as.POSIXlt(strptime(weeks, format="%Y-%m-%d"))$year-118)*12) + as.POSIXlt(strptime(weeks, format="%Y-%m-%d"))$mon+1
+  
+  my.files <- out.temp
+  sum_mthly <- vector("list", length(my.files))
+  names(my.files) <- list("deadD", "expD", "infD", "deadH")
+  names(sum_mthly) <- list("deadD", "expD", "infD", "deadH")
+  
+  for(i in 1: length(my.files)){
+    df.temp <- data.frame(my.files[[i]])
+    sum_mthly[[i]] <- rowsum(df.temp, group=months)
   }
-  stats_mthly[[i]] <- monthly_stats
+  
+  ### Boxplot figs (keep as is)
+  final_frame_box <- rbind(final_frame_box, 
+                       data.frame(R0=params_grid$R0[idx], Quarantine=params_grid$sqc[idx], Vaccination=params_grid$vc[idx],
+                                  deadD=as.vector(t(sum_mthly[[1]])), expD=as.vector(t(sum_mthly[[2]])), 
+                                  infD=as.vector(t(sum_mthly[[3]])), deadH=as.vector(t(sum_mthly[[4]]))))
+  
+  ### Time series figs (average over sims)
+  stats_mthly <- vector("list", length(sum_mthly))
+  names(stats_mthly) <- list("deadD", "expD", "infD", "deadH")
+  
+  for(i in 1:length(sum_mthly)){
+    df.temp <- data.frame(sum_mthly[[i]])
+    monthly_stats <- data.frame(mean=as.numeric(rowMeans(df.temp)))
+    for(j in 1:nrow(monthly_stats)){
+      monthly_stats$upperPI[j] <- as.numeric(as.character(sort(df.temp[j,])[round(0.975*nsim)]))
+      monthly_stats$lowerPI[j] <- as.numeric(as.character(sort(df.temp[j,])[round(0.275*nsim)]))
+    }
+    stats_mthly[[i]] <- monthly_stats
+  }
+  
+  ## HERE!!!
+  stats_mthly[[1]]
+  final_frame_ts <- rbind(final_frame_ts, 
+                           data.frame(R0=params_grid$R0[idx], Quarantine=params_grid$sqc[idx], Vaccination=params_grid$vc[idx],
+                                      deadD=as.vector(t(sum_mthly[[1]])), expD=as.vector(t(sum_mthly[[2]])), 
+                                      infD=as.vector(t(sum_mthly[[3]])), deadH=as.vector(t(sum_mthly[[4]]))))
+  
+  
+  
 }
 
-# save 
-# write.csv(stats_mthly[[1]], paste0(pathC, "deadD.csv"), row.names=F)
-# write.csv(stats_mthly[[2]], paste0(pathC, "deadH.csv"), row.names=F)
+#################################################################################################################################################
+data <- data.frame(team=rep(c('A', 'B', 'C'), each=50),
+                   program=rep(c('low', 'high'), each=25),
+                   values=seq(1:150)+sample(1:100, 150, replace=TRUE))
+head(data)
+ggplot(data, aes(x=team, y=values, fill=program)) + 
+  geom_boxplot() 
+
+
 
 ### Prepare colours
 pal <- hp(n = 10, house = "Slytherin")
