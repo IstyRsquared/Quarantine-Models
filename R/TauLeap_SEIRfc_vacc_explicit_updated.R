@@ -150,26 +150,31 @@ SEIR.tauleap <- function(init, pars, end.time, tau){
         counts <- counts + count.change[j, ] * num.min
       }
       
-      ## currents state
-      x <- init
-      S=x[1]
-      V1=x[2]
-      V2=x[3]
-      V3=x[4]
-      E=x[5]
-      I=x[6]
-      Qs=x[7]
-      Qer=x[8]
-      Qeb=x[9]
-      Qi=x[10]
-      Rill=x[11]
+      names(init) <- c("S", "V1", "V2", "V3", "E", "I", "Qs", "Qer", "Qeb", "Qi", "Rill", "Sh", "Eh", 
+                       "Ih", "Rh", "Vhs", "Vhe")
+      names(counts) <- c("S", "V1", "V2", "V3", "E", "I", "Qs", "Qer", "Qeb", "Qi", "Rill", "Sh", "Eh", 
+                         "Ih", "Rh", "Vhs", "Vhe")
       
-      Sh=x[12]
-      Eh=x[13]
-      Ih=x[14]
-      Rh=x[15]
-      Vhs=x[16]
-      Vhe=x[17]
+      ## currents state
+      y <- init
+      S=y[1]
+      V1=y[2]
+      V2=y[3]
+      V3=y[4]
+      E=y[5]
+      I=y[6]
+      Qs=y[7]
+      Qer=y[8]
+      Qeb=y[9]
+      Qi=y[10]
+      Rill=y[11]
+      
+      Sh=y[12]
+      Eh=y[13]
+      Ih=y[14]
+      Rh=y[15]
+      Vhs=y[16]
+      Vhe=y[17]
       
       ## Explicitly defined parameters: 
       ## 1) R0 dogs and humans
@@ -198,6 +203,7 @@ SEIR.tauleap <- function(init, pars, end.time, tau){
           V3 <- V3
           E <- E + comp.bitten[1]
           I <- I 
+          counts["E"] <- comp.bitten[1]
         }else{
           print("this is crazy dogs")
         }
@@ -316,28 +322,15 @@ SEIR.tauleap <- function(init, pars, end.time, tau){
         }
       }
       
-      
-      ## 3) Incursions 
-      incs.tmp <- rpois(1, i)
-      incs.w <- incs.tmp * tau
-      if(incs.w-as.integer(incs.w)==0){
-        incs <- incs.w
-      }else{
-        diff.tmp <- incs.w-floor(incs.w)
-        if(runif(1)<diff.tmp){
-          incs <- floor(incs.w)+1
-        }else{
-          incs <- floor(incs.w)
-        }
-      }
+      ## Incursions 
+      incs <- rpois(1, i)
       I <- I+incs
+      counts["I"] <- counts["I"]+incs
       
       init <- c(S=S, V1=V1, V2=V2, V3=V3, E=E, I=I, Qs=Qs, Qer=Qer, Qeb=Qeb, Qi=Qi, Rill=Rill,
                 Sh=Sh, Eh=Eh, Ih=Ih, Rh=Rh, Vhs=Vhs, Vhe=Vhe)
       names(init) <- c("S", "V1", "V2", "V3", "E", "I", "Qs", "Qer", "Qeb", "Qi", "Rill", "Sh", "Eh", 
                        "Ih", "Rh", "Vhs", "Vhe")
-      names(counts) <- c("S", "V1", "V2", "V3", "E", "I", "Qs", "Qer", "Qeb", "Qi", "Rill", "Sh", "Eh", 
-                         "Ih", "Rh", "Vhs", "Vhe")
       
       return(list(init, counts))
     })
