@@ -41,7 +41,7 @@ for(idx in 1:nrow(params_grid)){
   parameters["vc"] <-  params_grid$vc[idx]
   
   ### inits
-  V <- ifelse(parameters["vc"]==0, 0, round((-log(parameters["vc"]*53)-1)*N, digits=0))
+  V <- ifelse(parameters["vc"]==0, 0, round((1-exp(-parameters["vc"]*53))*N, digits=0))
   V.comp <- rowSums(rmultinom(n=V, size=1, prob=c(50, 30, 20)))
   V1 <- V.comp[1]; V2 <- V.comp[2]; V3 <- V.comp[3]
   S <- N - I - E - V
