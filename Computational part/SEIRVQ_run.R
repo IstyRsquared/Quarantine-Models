@@ -18,11 +18,12 @@ nsim <- 1000
 
 ## Disease
 R0s <- seq(1, 2, 0.1) 
+R0 <- R0s[1]
 sqcs <- 1:3 
 vc.temp <-  c(0, 0.25, 0.5, 0.75)
 vcs <- ifelse(is.infinite(-log(1-vc.temp)/53), vc.temp, -log(1-vc.temp)/53)
 
-params_grid <- expand.grid(list(R0 = R0s, # reproductive number
+params_grid <- expand.grid(list(R0 = R0, # reproductive number
                                 sqc = sqcs, # quarantine scenarios
                                 vc = vcs)) # vaccination scenarios
 # Pops
@@ -71,11 +72,12 @@ for(idx in 1:nrow(params_grid)){
   
   ### extract info & save
   allout[[idx]] <- list(deadD=deadD, expD=expD, infD=infD, deadH=deadH)
+  print(idx)
   print(params_grid[idx,])
   
 }
 
-# saveRDS(allout, "output/MS_sim_runs_test.Rdata") 
+# saveRDS(allout, paste0("output/MS_sim_runs_R0", R0, ".Rdata")) 
 
 # ### Run the model: testing
 # end.time <- 52*5
