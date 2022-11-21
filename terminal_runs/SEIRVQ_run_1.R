@@ -31,7 +31,7 @@ N <- 200000
 I <- round(49/56/0.05, digits=0) # assuming surveillance detected 5% of all cases in 13 months=56 weeks
 E <- round(4*I, digits=0)
 
-allout <- vector("list", length=nrow(params_grid))
+# allout <- vector("list", length=nrow(params_grid))
 
 for(idx in 1:nrow(params_grid)){
   ### params
@@ -70,13 +70,16 @@ for(idx in 1:nrow(params_grid)){
   }
   
   ### extract info & save
-  allout[[idx]] <- list(deadD=deadD, expD=expD, infD=infD, deadH=deadH)
+  # allout[[idx]] <- list(deadD=deadD, expD=expD, infD=infD, deadH=deadH)
+  allout <- list(deadD=deadD, expD=expD, infD=infD, deadH=deadH)
   print(idx)
   print(params_grid[idx,])
-  
+  saveRDS(allout, paste0("output/MS_sim_runs_R0", parameters["R0"], 
+                         "_sqc", params_grid$sqc[idx],
+                         "_vc", params_grid$vc[idx], ".Rdata")) 
 }
 
-saveRDS(allout, paste0("output/MS_sim_runs_R0", R0, ".Rdata")) 
+# saveRDS(allout, paste0("output/MS_sim_runs_R0", R0, ".Rdata")) 
 
 # ### Run the model: testing
 # end.time <- 52*5
