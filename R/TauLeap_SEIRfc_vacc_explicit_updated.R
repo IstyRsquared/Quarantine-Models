@@ -206,6 +206,15 @@ SEIR.tauleap <- function(init, pars, end.time, tau){
           counts["E"] <- comp.bitten[1]
         }else{
           print("this is crazy dogs")
+          pop.per.compartment <- c(S, V1, V2, V3, E, I)
+          comp.bitten <- rowSums(rmultinom(n=new.bites, size=1, prob = pop.per.compartment))
+          S <- S - comp.bitten[1]
+          V1 <- V1
+          V2 <- V2
+          V3 <- V3
+          E <- E + comp.bitten[1]
+          I <- I 
+          counts["E"] <- comp.bitten[1]
         }
       }
       
@@ -336,6 +345,7 @@ SEIR.tauleap <- function(init, pars, end.time, tau){
     })
   }
   
+  ## N.B. need to add while fc to stop when no sus dogs available!
   S <- V1 <- V2 <- V3 <- E <- I <- Qs <- Qer <- Qeb <- Qi <- Rill <- Sh <- Eh <- Ih <- Rh <- Vhs <- Vhe <- double()
   mycount <- c()
   t <- 0
