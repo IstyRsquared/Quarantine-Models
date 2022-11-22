@@ -32,6 +32,13 @@ I <- round(49/56/0.05, digits=0) # assuming surveillance detected 5% of all case
 E <- round(4*I, digits=0)
 
 # allout <- vector("list", length=nrow(params_grid))
+# check how many cases with R0=1.2
+# size=1.33 # numer of succesful trials
+# prob # prob of succes in each trial
+# mu=1.1 #
+# prob=size/(mu+size)
+# table(rnbinom(100, size=1.33, prob=0.3993994 ))
+# table(rnbinom(100, mu=1, size=1/1.33))
 
 for(idx in 1:nrow(params_grid)){
   ### params
@@ -46,7 +53,7 @@ for(idx in 1:nrow(params_grid)){
   V1 <- V.comp[1]; V2 <- V.comp[2]; V3 <- V.comp[3]
   S <- N - I - E - V
   
-  initials <- c(S=S, V1=V1, V2=V2, V3=V3, E=E, I=I, Qs=0, Qer=0, Qeb=0, Qi=0,
+  initials <- c(S=as.numeric(S), V1=V1, V2=V2, V3=V3, E=E, I=I, Qs=0, Qer=0, Qeb=0, Qi=0,
                 Rill=0, Sh=1324935, Eh=0, Ih=0,Rh=0, Vhs=0, Vhe=0) 
   
   ### run the model
@@ -67,6 +74,7 @@ for(idx in 1:nrow(params_grid)){
     infD[,sim] <- res.temp[,"I"]
     deadH[,sim] <- pops.temp[,"Rh"]
     rm( sierTL.out)
+    print(sim)
   }
   
   ### extract info & save
@@ -82,74 +90,74 @@ for(idx in 1:nrow(params_grid)){
 
 # saveRDS(allout, paste0("output/MS_sim_runs_R0", R0, ".Rdata")) 
 
-# ### Run the model: testing
-# end.time <- 52*5
-# sierTL.out <- SEIR.tauleap(init = initials, pars = parameters,
-#                            end.time = end.time, tau=1) # 1/52 weekly steps
-# out <- sierTL.out$results
-# counts <- sierTL.out$counts
-# 
-# out <- as.matrix(out)
-# counts <- as.data.frame(counts)
-# colnames(counts) <- c("S", "V1", "V2", "V3", "E", "I", "Qs", "Qer", "Qeb", "Qi", "Rill", "Sh", "Eh",
-#                    "Ih", "Rh", "Vhs", "Vhe")
-# head(counts); tail(counts)
-# counts$E 
-# 
-# ### Plot
-# # dog population
-# plot(seq(0, end.time, by=1), out[,2], type="l", ylim=c(0,max(out[,2], na.rm=T))) # sus
-# lines(seq(0, end.time, by=1), rowSums(out[,3:5]), col="orange") # all vacc
-# 
-# # dog vaccination
-# plot(seq(0, end.time, by=1), out[,3],  type="l", col="red", ylim=c(0,max(out[,3]))) # V1
-# lines(seq(0, end.time, by=1), out[,4], col="pink") # V2
-# lines(seq(0, end.time, by=1), out[,5], col="violet") # V3
-# 
-# # dog quarantine
-# plot(seq(0, end.time, by=1), rowSums(out[,8:11]), type="l") # all in qurantine
-# lines(seq(0, end.time, by=1), rowSums(counts[,10:11]), col="red") # exp+inf in quarantine that will be removed
-# 
-# # dog infection in quarantine
-# # plot(seq(0, end.time, by=1), counts$Qs, type="l", ylim=c(0,max(counts$Qs))) # Qs
-# # lines(seq(0, end.time, by=1), counts$Qer, col="green") # Qer
-# # lines(seq(0, end.time, by=1), counts$Qeb, col="blue") # Qeb
-# # lines(seq(0, end.time, by=1), counts$Qi, col="darkblue") # Qi
-# 
-# plot(seq(0, end.time, by=1), out[,8], type="l", ylim=c(0,max(out[,8]))) # Qs
-# lines(seq(0, end.time, by=1), out[,9], col="green") # Qer
-# lines(seq(0, end.time, by=1), out[,10], col="blue") # Qeb
-# lines(seq(0, end.time, by=1), out[,11], col="darkblue") # Qi
-# 
-# # dog infection in dogs and humans
-# plot(seq(0, end.time, by=1), counts$I, type="l", ylim=c(0,max(counts$I))) # I dogs
-# lines(seq(0, end.time, by=1), counts$Ih, col="red") # I humans
-# 
-# plot(seq(0, end.time, by=1), out[,7], type="l", ylim=c(0,max(out[,7]))) # I dogs
-# lines(seq(0, end.time, by=1), out[,15], col="red") # I humans
-# 
-# plot(seq(0, end.time, by=1), out[,6], type="l", ylim=c(0,max(out[,6]))) # E dogs
-# lines(seq(0, end.time, by=1), out[,7], col="red") # I dogs
-# 
-# plot(seq(0, end.time, by=1), counts$Rill, type="l", ylim=c(0,max(counts$Rill))) # dead dogs
-# lines(seq(0, end.time, by=1), counts$Rh, col="red") # dead humans
-# 
-# plot(seq(0, end.time, by=1), counts$Rill, type="l") # Rabid dead dogs
-# lines(seq(0, end.time, by=1), counts$I, col="red") # Rabid alive dogs
-# sum(counts$I)
-# sum(counts$Rill)
-# 
-# # plot(seq(0, end.time, by=1), out[,12], type="l") # dead dogs
-# # lines(seq(0, end.time, by=1), out[,16], col="red") # dead humans
-# 
-# # PEP uptake
-# plot(seq(0, end.time, by=1), counts$Vhs, type="l") # Vhs
-# lines(seq(0, end.time, by=1), counts$Vhe, col="blue") # Vhe
-# lines(seq(0, end.time, by=1), counts$Eh, col="red") # Eh (not given PEP)
-# sum(counts$Eh)
-# sum(counts$Ih)
-# sum(counts$Rh)
-# 
-# 
-# 
-# 
+### Run the model: testing
+end.time <- 52*5
+sierTL.out <- SEIR.tauleap(init = initials, pars = parameters,
+                           end.time = end.time, tau=1) # 1/52 weekly steps
+out <- sierTL.out$results
+counts <- sierTL.out$counts
+
+out <- as.matrix(out)
+counts <- as.data.frame(counts)
+colnames(counts) <- c("S", "V1", "V2", "V3", "E", "I", "Qs", "Qer", "Qeb", "Qi", "Rill", "Sh", "Eh",
+                   "Ih", "Rh", "Vhs", "Vhe")
+head(counts); tail(counts)
+counts$E
+
+### Plot
+# dog population
+plot(seq(0, end.time, by=1), out[,2], type="l", ylim=c(0,max(out[,2], na.rm=T))) # sus
+lines(seq(0, end.time, by=1), rowSums(out[,3:5]), col="orange") # all vacc
+
+# dog vaccination
+plot(seq(0, end.time, by=1), out[,3],  type="l", col="red", ylim=c(0,max(out[,3]))) # V1
+lines(seq(0, end.time, by=1), out[,4], col="pink") # V2
+lines(seq(0, end.time, by=1), out[,5], col="violet") # V3
+
+# dog quarantine
+plot(seq(0, end.time, by=1), rowSums(out[,8:11]), type="l") # all in qurantine
+lines(seq(0, end.time, by=1), rowSums(counts[,10:11]), col="red") # exp+inf in quarantine that will be removed
+
+# dog infection in quarantine
+# plot(seq(0, end.time, by=1), counts$Qs, type="l", ylim=c(0,max(counts$Qs))) # Qs
+# lines(seq(0, end.time, by=1), counts$Qer, col="green") # Qer
+# lines(seq(0, end.time, by=1), counts$Qeb, col="blue") # Qeb
+# lines(seq(0, end.time, by=1), counts$Qi, col="darkblue") # Qi
+
+plot(seq(0, end.time, by=1), out[,8], type="l", ylim=c(0,max(out[,8]))) # Qs
+lines(seq(0, end.time, by=1), out[,9], col="green") # Qer
+lines(seq(0, end.time, by=1), out[,10], col="blue") # Qeb
+lines(seq(0, end.time, by=1), out[,11], col="darkblue") # Qi
+
+# dog infection in dogs and humans
+plot(seq(0, end.time, by=1), counts$I, type="l", ylim=c(0,max(counts$I))) # I dogs
+lines(seq(0, end.time, by=1), counts$Ih, col="red") # I humans
+
+plot(seq(0, end.time, by=1), out[,7], type="l", ylim=c(0,max(out[,7]))) # I dogs
+lines(seq(0, end.time, by=1), out[,15], col="red") # I humans
+
+plot(seq(0, end.time, by=1), out[,6], type="l", ylim=c(0,max(out[,6]))) # E dogs
+lines(seq(0, end.time, by=1), out[,7], col="red") # I dogs
+
+plot(seq(0, end.time, by=1), counts$Rill, type="l", ylim=c(0,max(counts$Rill))) # dead dogs
+lines(seq(0, end.time, by=1), counts$Rh, col="red") # dead humans
+
+plot(seq(0, end.time, by=1), counts$Rill, type="l") # Rabid dead dogs
+lines(seq(0, end.time, by=1), counts$I, col="red") # Rabid alive dogs
+sum(counts$I)
+sum(counts$Rill)
+
+# plot(seq(0, end.time, by=1), out[,12], type="l") # dead dogs
+# lines(seq(0, end.time, by=1), out[,16], col="red") # dead humans
+
+# PEP uptake
+plot(seq(0, end.time, by=1), counts$Vhs, type="l") # Vhs
+lines(seq(0, end.time, by=1), counts$Vhe, col="blue") # Vhe
+lines(seq(0, end.time, by=1), counts$Eh, col="red") # Eh (not given PEP)
+sum(counts$Eh)
+sum(counts$Ih)
+sum(counts$Rh)
+
+
+
+
