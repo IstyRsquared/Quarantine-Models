@@ -7,6 +7,7 @@
 library(compoisson)
 library(truncnorm)
 
+# N.B. go back to the original format for HK model!
 SEIR.tauleap <- function(init, pars, end.time, tau){
   init2 <- init
   
