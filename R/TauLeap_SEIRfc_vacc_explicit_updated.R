@@ -67,8 +67,8 @@ SEIR.tauleap <- function(init, pars, end.time, tau){
       E.temp <- 0
       if(I>0){
         # print(paste0("I", I))
-        Rnull.temp <- rnbinom(I, size=params["size"], prob=params["Rprob"])
-        # Rnull.temp <- rnbinom(I, mu=params["R0"], size=1/params["size"])
+        # Rnull.temp <- rnbinom(I, size=params["size"], prob=params["Rprob"])
+        Rnull.temp <- rnbinom(I, mu=params["R0"], size=1/params["size"])
         # print(paste0("new cases", sum(Rnull.temp)))
       }else{
         Rnull.temp <- 0
