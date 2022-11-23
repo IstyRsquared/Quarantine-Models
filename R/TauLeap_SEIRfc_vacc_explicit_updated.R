@@ -1,8 +1,8 @@
-## Hong KONG model development
+## Quarantine model 
 ## Name: Isty Rysava
-## Date: 18/06/18
-## Code: SEIR tauleap model function
-## features: biased vaccination, incursions, explicit biting behaviour, quarantine
+## Date: 06/29/2022
+## Code: Computational part - SEI(R)VQ tauleap model function
+##  features: biased vaccination, incursions, explicit biting behaviour, quarantine 
 
 # install.packages("~/Downloads/compoisson_0.3.tar", repos = NULL, type="source")
 library(compoisson)
@@ -70,6 +70,9 @@ SEIR.tauleap <- function(init, pars, end.time, tau){
         # Rnull.temp <- rnbinom(I, size=params["size"], prob=params["Rprob"])
         Rnull.temp <- rnbinom(I, mu=params["R0"], size=1/params["size"])
         # print(paste0("new cases", sum(Rnull.temp)))
+        # think about adding alpha - talk to Mike
+        # bites=c(0, 1, 4, 0, 2, 7)
+        # bites^0.6
       }else{
         Rnull.temp <- 0
       }
