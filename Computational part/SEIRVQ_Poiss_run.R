@@ -1,14 +1,14 @@
 ## Quarantine model 
 ## Name: Isty Rysava
 ## Date: 08/02/18
-## Code: runs  SEIR.tauleap model (NB) to test intervention scenarios 
+## Code: runs  SEIR.tauleap model (Poiss) to test intervention scenarios 
 
 rm(list=ls())
 # setwd("C:/Users/tui9/Documents/Practice code/Quarantine-Models")
 setwd("~/Documents/Rabies_Warwick/Quarantine-models")
 
 ### Libraries 
-source("R/TauLeap_SEIRfc_vacc_explicit_updated.R")
+source("R/TauLeap_SEIRfc_vacc_explicit_Poiss.R")
 source("R/model_params.R")
 
 ### Parameters and initial conditions 
@@ -18,7 +18,7 @@ nsim <- 1000
 
 ## Disease
 R0s <- seq(1, 2, 0.1) 
-R0 <- R0s[8]
+R0 <- R0s[4]
 sqcs <- 1:3 
 vc.temp <-  c(0, 0.25, 0.5, 0.75)
 vcs <- ifelse(is.infinite(-log(1-vc.temp)/53), vc.temp, -log(1-vc.temp)/53)
@@ -42,7 +42,6 @@ for(idx in 1:nrow(params_grid)){
   
   ### inits
   V <- ifelse(parameters["vc"]==0, 0, round((-log(parameters["vc"]*53)-1)*N, digits=0))
-  V=0.25*N
   V.comp <- rowSums(rmultinom(n=V, size=1, prob=c(50, 30, 20)))
   V1 <- V.comp[1]; V2 <- V.comp[2]; V3 <- V.comp[3]
   S <- N - I - E - V
@@ -91,12 +90,12 @@ counts <- as.data.frame(counts)
 colnames(counts) <- c("S", "V1", "V2", "V3", "E", "I", "Qs", "Qer", "Qeb", "Qi", "Rill", "Sh", "Eh",
                    "Ih", "Rh", "Vhs", "Vhe")
 head(counts); tail(counts)
+counts$E
 
 ### Plot
 # dog population
-plot(seq(0, end.time, by=1), out[,2], type="l", ylim=c(0,500000)) # sus
+plot(seq(0, end.time, by=1), out[,2], type="l", ylim=c(0,max(out[,2], na.rm=T))) # sus
 lines(seq(0, end.time, by=1), rowSums(out[,3:5]), col="orange") # all vacc
-plot(seq(0, end.time, by=1), counts$S, type="l", ylim=c(0,max(counts$S, na.rm=T))) # new sus
 
 # dog vaccination
 plot(seq(0, end.time, by=1), out[,3],  type="l", col="red", ylim=c(0,max(out[,3]))) # V1
@@ -105,7 +104,7 @@ lines(seq(0, end.time, by=1), out[,5], col="violet") # V3
 
 # dog quarantine
 plot(seq(0, end.time, by=1), rowSums(out[,8:11]), type="l") # all in qurantine
-lines(seq(0, end.time, by=1), rowSums(counts[,8:10]), col="red") # exp+inf in quarantine that will be removed
+lines(seq(0, end.time, by=1), rowSums(counts[,10:11]), col="red") # exp+inf in quarantine that will be removed
 
 # dog infection in quarantine
 # plot(seq(0, end.time, by=1), counts$Qs, type="l", ylim=c(0,max(counts$Qs))) # Qs
@@ -131,24 +130,21 @@ lines(seq(0, end.time, by=1), out[,7], col="red") # I dogs
 plot(seq(0, end.time, by=1), counts$Rill, type="l", ylim=c(0,max(counts$Rill))) # dead dogs
 lines(seq(0, end.time, by=1), counts$Rh, col="red") # dead humans
 
-plot(seq(0, end.time, by=1), out[,12], type="l", ylim=c(0,max(out[,12]))) # Rill
-
 plot(seq(0, end.time, by=1), counts$Rill, type="l") # Rabid dead dogs
 lines(seq(0, end.time, by=1), counts$I, col="red") # Rabid alive dogs
-
 sum(counts$I)
 sum(counts$Rill)
 
 # plot(seq(0, end.time, by=1), out[,12], type="l") # dead dogs
 # lines(seq(0, end.time, by=1), out[,16], col="red") # dead humans
 
-# # PEP uptake
-# plot(seq(0, end.time, by=1), counts$Vhs, type="l") # Vhs
-# lines(seq(0, end.time, by=1), counts$Vhe, col="blue") # Vhe
-# lines(seq(0, end.time, by=1), counts$Eh, col="red") # Eh (not given PEP)
-# sum(counts$Eh)
-# sum(counts$Ih)
-# sum(counts$Rh)
+# PEP uptake
+plot(seq(0, end.time, by=1), counts$Vhs, type="l") # Vhs
+lines(seq(0, end.time, by=1), counts$Vhe, col="blue") # Vhe
+lines(seq(0, end.time, by=1), counts$Eh, col="red") # Eh (not given PEP)
+sum(counts$Eh)
+sum(counts$Ih)
+sum(counts$Rh)
 
 
 

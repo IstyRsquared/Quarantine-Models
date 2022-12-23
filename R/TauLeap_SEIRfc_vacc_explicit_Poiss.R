@@ -3,7 +3,7 @@
 ## Date: 06/29/2022
 ## Code: Computational part - SEI(R)VQ tauleap model function
 ## features: biased vaccination, incursions, explicit biting behaviour, quarantine 
-## offspring cases from Negative Binomial distribution
+## offspring cases from Poisson distribution
 
 # install.packages("~/Downloads/compoisson_0.3.tar", repos = NULL, type="source")
 library(compoisson)
@@ -68,10 +68,12 @@ SEIR.tauleap <- function(init, pars, end.time, tau){
       E.temp <- 0
       if(I>0){
         # print(paste0("I", I))
-        Rnull.temp <- rnbinom(I, size=params["size"], prob=params["Rprob"])
-        # Rnull.temp <- rnbinom(I, size=params["R0"], prob=0.5)
-        # for each dog 49% of becoming rabid
-        # bites=c(0, 1, 4, 0, 2, 7); bites^0.6
+        # Rnull.temp <- rnbinom(I, size=params["size"], prob=params["Rprob"])
+        Rnull.temp <- rpois(n=I, lambda=params["R0"])
+        # print(paste0("new cases", sum(Rnull.temp)))
+        # think about adding alpha - talk to Mike
+        # bites=c(0, 1, 4, 0, 2, 7)
+        # bites^0.6
       }else{
         Rnull.temp <- 0
       }
@@ -82,7 +84,6 @@ SEIR.tauleap <- function(init, pars, end.time, tau){
         if(runif(1)<new.bitestemp){
           new.bites <- floor(sum(Rnull.temp)*tau*params["gamma"])+1
           new.bites <- length(which((runif(sum(new.bites), 0, 1)>0.49)==TRUE))
-          
         }else{
           new.bites <- floor(sum(Rnull.temp)*tau*params["gamma"])
           new.bites <- length(which((runif(sum(new.bites), 0, 1)>0.49)==TRUE))
