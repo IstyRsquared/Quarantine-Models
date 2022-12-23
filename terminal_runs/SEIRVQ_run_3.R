@@ -67,14 +67,13 @@ for(idx in 1:nrow(params_grid)){
     infD[,sim] <- res.temp[,"I"]
     deadH[,sim] <- pops.temp[,"Rh"]
     rm( sierTL.out)
-    print(sim)
   }
   
   ### extract info & save
   # allout[[idx]] <- list(deadD=deadD, expD=expD, infD=infD, deadH=deadH)
   allout <- list(deadD=deadD, expD=expD, infD=infD, deadH=deadH)
   print(idx)
-  print(params_grid[idx,])
+  # print(params_grid[idx,])
   vc.t <- 1-exp(-params_grid$vc[idx]*53)
   saveRDS(allout, paste0("output/MS_sim_runs_R0", parameters["R0"], 
                          "_sqc", params_grid$sqc[idx],

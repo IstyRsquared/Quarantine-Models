@@ -18,7 +18,7 @@ nsim <- 1000
 
 ## Disease
 R0s <- seq(1, 2, 0.1) 
-R0 <- R0s[2]
+R0 <- R0s[10]
 sqcs <- 1:3 
 vc.temp <-  c(0, 0.25, 0.5, 0.75)
 vcs <- ifelse(is.infinite(-log(1-vc.temp)/53), vc.temp, -log(1-vc.temp)/53)
@@ -32,13 +32,6 @@ I <- round(49/56/0.05, digits=0) # assuming surveillance detected 5% of all case
 E <- round(4*I, digits=0)
 
 # allout <- vector("list", length=nrow(params_grid))
-# check how many cases with R0=1.2
-# size=1.33 # numer of succesful trials
-# prob # prob of succes in each trial
-# mu=1.1 #
-# prob=size/(mu+size)
-# table(rnbinom(100, size=1.33, prob=0.3993994 ))
-# table(rnbinom(100, mu=1, size=1/1.33))
 
 for(idx in 1:nrow(params_grid)){
   ### params
@@ -53,7 +46,7 @@ for(idx in 1:nrow(params_grid)){
   V1 <- V.comp[1]; V2 <- V.comp[2]; V3 <- V.comp[3]
   S <- N - I - E - V
   
-  initials <- c(S=as.numeric(S), V1=V1, V2=V2, V3=V3, E=E, I=I, Qs=0, Qer=0, Qeb=0, Qi=0,
+  initials <- c(S=S, V1=V1, V2=V2, V3=V3, E=E, I=I, Qs=0, Qer=0, Qeb=0, Qi=0,
                 Rill=0, Sh=1324935, Eh=0, Ih=0,Rh=0, Vhs=0, Vhe=0) 
   
   ### run the model
@@ -99,7 +92,7 @@ counts <- sierTL.out$counts
 out <- as.matrix(out)
 counts <- as.data.frame(counts)
 colnames(counts) <- c("S", "V1", "V2", "V3", "E", "I", "Qs", "Qer", "Qeb", "Qi", "Rill", "Sh", "Eh",
-                   "Ih", "Rh", "Vhs", "Vhe")
+                      "Ih", "Rh", "Vhs", "Vhe")
 head(counts); tail(counts)
 counts$E
 
