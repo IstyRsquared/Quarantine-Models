@@ -83,7 +83,7 @@ for(idx in 1:nrow(params_grid)){
   R0 <- params_grid[idx,][1]
   sqc <- params_grid[idx,][2]
   vac <- params_grid[idx,][3]
-  path <- paste0("figs/MS_sim_runs_R0", R0, "_sqc", sqc, "_vc", vac, ".Rdata")
+  path <- paste0("figs/ts/MS_sim_runs_R0", R0, "_sqc", sqc, "_vc", vac, ".pdf")
   
   stats_mthly <- final_list_ts[[idx]]
   dogs <- stats_mthly[[1]]
