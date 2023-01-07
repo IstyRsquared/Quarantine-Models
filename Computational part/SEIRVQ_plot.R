@@ -19,7 +19,7 @@ nsim <- 1000
 # R0s <- seq(1, 2, 0.1)
 R0s <- 1.2
 sqcs <- 1:3
-vc.temp <-  c(0, 25, 50, 75)
+vc.temp <-  c(0, 0.25, 0.5, 0.75)
 params_grid <- expand.grid(list(R0 = R0s, # reproductive number
                                 sqc = sqcs, # quarantine scenarios
                                 vc = vc.temp)) # vaccination scenarios
@@ -71,8 +71,50 @@ for(idx in 1:nrow(params_grid)){
 # saveRDS(final_list_ts, "output/MS_monthly_infection_ts.Rdata") 
 # write.csv(final_frame_box, "output/MS_monthly_infection_boxplot.csv", row.names=F) 
 
-
 #################################################################################################################################################
+# cols
+pal <- hp(n = 10, house = "Slytherin")
+colgreen <- pal[10]; colgreenlight <- pal[3]
+pal <- hp(n = 10, option = "LunaLovegood")
+colpink <- pal[7]; colpinkdark <- pal[10]
+
+### TIME SERIES (of dead dogs and humans)
+for(idx in 1:nrow(params_grid)){
+  R0 <- params_grid[idx,][1]
+  sqc <- params_grid[idx,][2]
+  vac <- params_grid[idx,][3]
+  path <- paste0("figs/MS_sim_runs_R0", R0, "_sqc", sqc, "_vc", vac, ".Rdata")
+  
+  stats_mthly <- final_list_ts[[idx]]
+  dogs <- stats_mthly[[1]]
+  humans <- stats_mthly[[4]]
+  
+  pdf(path, width=6, height=4)
+  par(mar=c(5,5.5,1,1.5), cex=0.9)
+  # main dogs
+  x<-1:nrow(dogs)
+  plot(dogs$mean~x,type="l",cex.lab=1,ylab="Canine rabies cases",xlab="Time (months)",axes=F,ylim=c(0,max(dogs$upperPI)), xaxt="n", bty="n",
+       main=paste0("R0=", params_grid[idx,1], " ", params_grid[idx,2], " ", "vc=", params_grid[idx,3]), cex.main=.8)
+  # plot(dogs$mean~x,type="l",cex.lab=1,ylab="Canine rabies cases",xlab="Time (months)", axes=F,ylim=c(0,130), xaxt="n", bty="n")
+  axis(1, at=seq(1,61,12), labels=paste("Jan",c(2018, 2019, 2020, 2021, 2022, 2023)), cex.axis=0.9)
+  axis(2, cex.axis=0.9)
+  axis(1,at=seq(1,61,3),lab=rep("",length(seq(1,61,3))),tck=-0.01)
+  polygon(c(1:nrow(dogs),nrow(dogs):1),c(dogs$upperPI,rev(dogs$lowerPI)),col=colpink,border=F)
+  lines(dogs$mean~x,col=colpinkdark,lwd=2)
+  
+  # inset humans
+  par(new=TRUE, mar=c(0,0,0,0),mfrow=c(1,1), plt=c(0.67, 0.93, 0.67, 0.89), cex=0.72)
+  x<-1:nrow(humans)
+  plot(humans$mean~x,type="l",cex.lab=1,ylab="Human rabies cases",xlab="Time (months)",axes=F,ylim=c(0,max(humans$upperPI)), xaxt="n", bty="n")
+  #plot(humans$mean~x,type="l",cex.lab=1,ylab="Human rabies cases",xlab="Time (months)",axes=F,ylim=c(0,10), xaxt="n", bty="n")
+  axis(1,at=seq(1,61,12),labels=c(2018, 2019, 2020, 2021, 2022, 2023), cex.axis=0.8)
+  axis(1, at=seq(1,61,3), lab=rep("",length(seq(1,61,3))),tck=-0.01)
+  axis(2, cex.axis=.8)
+  polygon(c(1:nrow(humans),nrow(humans):1),c(humans$upperPI,rev(humans$lowerPI)),col=colgreenlight,border=F)
+  lines(humans$mean~x,col=colgreen,lwd=2)
+  dev.off()
+}
+  
 ### BOXPLOT (of exposed and infectious dogs)
 ## Set up theme
 theme_set(theme_bw() +
@@ -89,11 +131,6 @@ theme_set(theme_bw() +
 data <- data.frame(team=rep(c('A', 'B', 'C'), each=50),
                    program=rep(c('low', 'high'), each=25),
                    values=seq(1:150)+sample(1:100, 150, replace=TRUE))
-# cols
-pal <- hp(n = 10, house = "Slytherin")
-colgreen <- pal[10]; colgreenlight <- pal[3]
-pal <- hp(n = 10, option = "LunaLovegood")
-colpink <- pal[7]; colpinkdark <- pal[10]
 
 # labs
 supp.labs <- paste("R0 =", unique(final_frame_box$R0))
@@ -111,39 +148,7 @@ p_box <- ggplot(data = final_frame_box, aes(x=Quarantine, y=expD+infD, fill=Vacc
   ylab("Monthly no. of infected dogs (E+I)") + xlab("Quarantine") +
   theme(strip.background = element_blank())
 
-  # scale_fill_manual(values=c(colgreen, colpink), name="", labels=c("stable", "unstable")) + # will need to change colours
-
-### TIME SERIES (of dead dogs and humans)
-stats_mthly <- final_list_ts[[idx]]
-dogs <- stats_mthly[[1]]
-humans <- stats_mthly[[4]]
-
-#pdf(pathD, width=6, height=4)
-par(mar=c(5,5.5,1,1.5), cex=0.9)
-# main dogs
-x<-1:nrow(dogs)
-plot(dogs$mean~x,type="l",cex.lab=1,ylab="Canine rabies cases",xlab="Time (months)",axes=F,ylim=c(0,max(dogs$upperPI)), xaxt="n", bty="n",
-     main=paste0("R0=", params_grid[idx,1], " ", params_grid[idx,2], " ", "vc=", params_grid[idx,3]), cex.main=.8)
-# plot(dogs$mean~x,type="l",cex.lab=1,ylab="Canine rabies cases",xlab="Time (months)", axes=F,ylim=c(0,130), xaxt="n", bty="n")
-axis(1, at=seq(1,61,12), labels=paste("Jan",c(2018, 2019, 2020, 2021, 2022, 2023)), cex.axis=0.9)
-axis(2, cex.axis=0.9)
-axis(1,at=seq(1,61,3),lab=rep("",length(seq(1,61,3))),tck=-0.01)
-polygon(c(1:nrow(dogs),nrow(dogs):1),c(dogs$upperPI,rev(dogs$lowerPI)),col=colpink,border=F)
-lines(dogs$mean~x,col=colpinkdark,lwd=2)
-
-# inset humans
-par(new=TRUE, mar=c(0,0,0,0),mfrow=c(1,1), plt=c(0.67, 0.93, 0.67, 0.89), cex=0.72)
-x<-1:nrow(humans)
-plot(humans$mean~x,type="l",cex.lab=1,ylab="Human rabies cases",xlab="Time (months)",axes=F,ylim=c(0,max(humans$upperPI)), xaxt="n", bty="n")
-#plot(humans$mean~x,type="l",cex.lab=1,ylab="Human rabies cases",xlab="Time (months)",axes=F,ylim=c(0,10), xaxt="n", bty="n")
-axis(1,at=seq(1,61,12),labels=c(2018, 2019, 2020, 2021, 2022, 2023), cex.axis=0.8)
-axis(1, at=seq(1,61,3), lab=rep("",length(seq(1,61,3))),tck=-0.01)
-axis(2, cex.axis=.8)
-polygon(c(1:nrow(humans),nrow(humans):1),c(humans$upperPI,rev(humans$lowerPI)),col=colgreenlight,border=F)
-lines(humans$mean~x,col=colgreen,lwd=2)
-#dev.off()
-
-
+# scale_fill_manual(values=c(colgreen, colpink), name="", labels=c("stable", "unstable")) + # will need to change colours
 
 
 
