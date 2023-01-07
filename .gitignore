@@ -1,4 +1,19 @@
-.Rproj.user
+Rproj.user
 .Rhistory
 .RData
 .Ruserdata
+
+# Ignored files
+.DS_Store
+*.csv
+.Rproj
+.rds
+
+<<<<<<< HEAD
+# Crash Log
+crash.log
+.Rproj.user
+=======
+
+data/
+figs/
