@@ -6,21 +6,20 @@
 
 rm(list=ls())
 
-setwd("C:/Users/tui9/Documents/Practice code/Quarantine-Models")
+# setwd("C:/Users/tui9/Documents/Practice code/Quarantine-Models")
+setwd("~/Documents/Rabies_Warwick/Quarantine-models")
+
 library(harrypotter)
 library(tidyverse)
-
-### Data 
-allout <- readRDS("output/MS_sim_runs_test.Rdata")
-# idx <- c(37, 38)
 
 ## Params set up
 end.time <- 52*5
 nsim <- 1000
 
-R0s <- seq(1, 2, 0.1)
-sqcs <- paste("Scenario", 1:3)
-vc.temp <-  c("0%", "25%", "50%", "75%")
+# R0s <- seq(1, 2, 0.1)
+R0s <- 1.2
+sqcs <- 1:3
+vc.temp <-  c(0, 25, 50, 75)
 params_grid <- expand.grid(list(R0 = R0s, # reproductive number
                                 sqc = sqcs, # quarantine scenarios
                                 vc = vc.temp)) # vaccination scenarios
@@ -32,7 +31,10 @@ weeks <- seq(as.Date("2018-01-01"), as.Date("2022-12-31"), by="week")
 months <- ((as.POSIXlt(strptime(weeks, format="%Y-%m-%d"))$year-118)*12) + as.POSIXlt(strptime(weeks, format="%Y-%m-%d"))$mon+1
 
 for(idx in 1:nrow(params_grid)){
-  my.files <- allout[[idx]]
+  R0 <- params_grid[idx,][1]
+  sqc <- params_grid[idx,][2]
+  vac <- params_grid[idx,][3]
+  my.files <- readRDS(paste0("output/MS_sim_runs_R0", R0, "_sqc", sqc, "_vc", vac, ".Rdata"))
   
   ## Aggregate by month 
   sum_mthly <- vector("list", length(my.files))
