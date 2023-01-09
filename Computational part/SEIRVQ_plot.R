@@ -90,11 +90,13 @@ for(idx in 1:nrow(params_grid)){
   humans <- stats_mthly[[4]]
   
   pdf(path, width=6, height=4)
-  par(mar=c(5,5.5,1,1.5), cex=0.9)
+  par(mar=c(5,5.5,1,1.5), cex=0.8)
   # main dogs
   x<-1:nrow(dogs)
-  plot(dogs$mean~x,type="l",cex.lab=1,ylab="Canine rabies cases",xlab="Time (months)",axes=F,ylim=c(0,max(dogs$upperPI)), xaxt="n", bty="n",
+  plot(dogs$mean~x,type="l",cex.lab=1,ylab="",xlab="",axes=F,ylim=c(0,max(dogs$upperPI)), xaxt="n", bty="n",
        main=paste0("R0=", params_grid[idx,1], " ", params_grid[idx,2], " ", "vc=", params_grid[idx,3]), cex.main=.8)
+  title(xlab = "Time (months)", line = 2)            
+  title(ylab = "Canine rabies cases", line = 2)   
   # plot(dogs$mean~x,type="l",cex.lab=1,ylab="Canine rabies cases",xlab="Time (months)", axes=F,ylim=c(0,130), xaxt="n", bty="n")
   axis(1, at=seq(1,61,12), labels=paste("Jan",c(2018, 2019, 2020, 2021, 2022, 2023)), cex.axis=0.9)
   axis(2, cex.axis=0.9)
@@ -105,8 +107,10 @@ for(idx in 1:nrow(params_grid)){
   # inset humans
   par(new=TRUE, mar=c(0,0,0,0),mfrow=c(1,1), plt=c(0.67, 0.93, 0.67, 0.89), cex=0.72)
   x<-1:nrow(humans)
-  plot(humans$mean~x,type="l",cex.lab=1,ylab="Human rabies cases",xlab="Time (months)",axes=F,ylim=c(0,max(humans$upperPI)), xaxt="n", bty="n")
+  plot(humans$mean~x,type="l",cex.lab=1,ylab="",xlab="",axes=F,ylim=c(0,max(humans$upperPI)), xaxt="n", bty="n")
   #plot(humans$mean~x,type="l",cex.lab=1,ylab="Human rabies cases",xlab="Time (months)",axes=F,ylim=c(0,10), xaxt="n", bty="n")
+  title(xlab = "Time (months)", line = 2)            
+  title(ylab = "Human rabies cases", line = 2)   
   axis(1,at=seq(1,61,12),labels=c(2018, 2019, 2020, 2021, 2022, 2023), cex.axis=0.8)
   axis(1, at=seq(1,61,3), lab=rep("",length(seq(1,61,3))),tck=-0.01)
   axis(2, cex.axis=.8)
@@ -114,7 +118,25 @@ for(idx in 1:nrow(params_grid)){
   lines(humans$mean~x,col=colgreen,lwd=2)
   dev.off()
 }
-  
+
+## Calculate human cases
+# low: 4, high: 6
+idx=6
+stats_mthly <- final_list_ts[[idx]]
+dogs <- stats_mthly[[1]]
+humans <- stats_mthly[[4]]
+sum(humans$mean) 
+# R0=1.3, low: 65.076, high: 47.129
+# (65.076 - 47.129) / (65.076/100) # 28%
+# R0=1.2, low: 60.555, high: 45.101
+# (60.555 - 45.101) / (60.555/100) # 26%
+
+sum(dogs$mean) 
+# R0=1.3, low: 958.651, high: 817.13
+# (958.651 - 817.13) / (958.651/100) # 15%
+# R0=1.2, low: 886.805, high: 776.412
+# (886.805 - 776.412) / (886.805/100) # 13%
+
 ### BOXPLOT (of exposed and infectious dogs)
 ## Set up theme
 theme_set(theme_bw() +
