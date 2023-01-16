@@ -16,8 +16,7 @@ library(tidyverse)
 end.time <- 52*5
 nsim <- 1000
 
-# R0s <- seq(1, 2, 0.1)
-R0s <- 1.2
+R0s <- seq(1, 2, 0.1)
 sqcs <- 1:3
 vc.temp <-  c(0, 0.25, 0.5, 0.75)
 params_grid <- expand.grid(list(R0 = R0s, # reproductive number
@@ -66,6 +65,7 @@ for(idx in 1:nrow(params_grid)){
   }
   
   final_list_ts[[idx]] <- stats_mthly
+  print(idx)
 }
 
 # saveRDS(final_list_ts, "output/MS_monthly_infection_ts.Rdata") 
