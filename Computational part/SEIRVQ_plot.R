@@ -72,6 +72,8 @@ for(idx in 1:nrow(params_grid)){
 # write.csv(final_frame_box, "output/MS_monthly_infection_boxplot.csv", row.names=F) 
 
 #################################################################################################################################################
+final_frame_box <- read.csv("output/MS_monthly_infection_boxplot.csv")
+
 # cols
 pal <- hp(n = 10, house = "Slytherin")
 colgreen <- pal[10]; colgreenlight <- pal[3]
@@ -150,25 +152,50 @@ theme_set(theme_bw() +
                   legend.text = element_text(size = 4),
                   text=element_text(size=5),
                   legend.key.size = unit(0.3, 'cm')))
+
 data <- data.frame(team=rep(c('A', 'B', 'C'), each=50),
                    program=rep(c('low', 'high'), each=25),
                    values=seq(1:150)+sample(1:100, 150, replace=TRUE))
+tibble(data)
+ggplot(data, aes(x=team, y=values, fill=program)) +
+  geom_boxplot()
 
 # labs
 supp.labs <- paste("R0 =", unique(final_frame_box$R0))
 to_string <- as_labeller(c(`1` = supp.labs[1], `1.1` = supp.labs[2], `1.2` = supp.labs[3], `1.3` = supp.labs[4], `1.4` = supp.labs[5],
                            `1.5` = supp.labs[6], `1.6` = supp.labs[7], `1.7` = supp.labs[8], `1.8` = supp.labs[9], `1.9` = supp.labs[10], 
                            `2` = supp.labs[11]))
-head(data)
-ggplot(data, aes(x=team, y=values, fill=program)) + 
-  geom_boxplot() 
-
 ## Draw plot
+tibble(final_frame_box)
+final_frame_box <- tibble(final_frame_box) %>%
+  mutate(R0 = as.factor(R0)) %>%
+  mutate(Vaccination = as.factor(Vaccination)) %>%
+  mutate(Quarantine = as.factor(Quarantine))
+
+test <- filter(final_frame_box, R0==1.3)
+ggplot(test, aes(x=Quarantine, y=expD+infD, fill=Vaccination)) +
+  geom_boxplot()
+
 p_box <- ggplot(data = final_frame_box, aes(x=Quarantine, y=expD+infD, fill=Vaccination)) +
   geom_boxplot() +
   facet_wrap(~R0, labeller = to_string) +
   ylab("Monthly no. of infected dogs (E+I)") + xlab("Quarantine") +
   theme(strip.background = element_blank())
+
+# change colours
+# make ylim flexible so that lower counts vissible
+# see if points in boxplot can be smaller and semi-trasparent
+
+g1 <- p_box %+% dplyr::filter(final_frame_box, R0 == 1) + theme(legend.position = "none")
+g2 <- p_box %+% dplyr::filter(final_frame_box, R0 != 1) + facet_wrap(~R0, nrow=2)
+
+infection_grid <- gridExtra::grid.arrange(g1, g2,
+                                          layout_matrix = 
+                                            matrix(c(1, 1, 1, 2, 2, 2, 2, 2, 2,
+                                                     1, 1, 1, 2, 2, 2, 2, 2, 2),
+                                                   byrow = TRUE, nrow = 2))
+
+ggsave("figs/Infection_CompGrid.png", width = 20, height = 18, units = "cm")
 
 # scale_fill_manual(values=c(colgreen, colpink), name="", labels=c("stable", "unstable")) + # will need to change colours
 
