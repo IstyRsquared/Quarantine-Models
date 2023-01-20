@@ -81,7 +81,9 @@ pal <- hp(n = 10, option = "LunaLovegood")
 colpink <- pal[7]; colpinkdark <- pal[10]
 
 ### TIME SERIES (of dead dogs and humans)
-for(idx in 1:nrow(params_grid)){
+# plot only for R0=1.2 or 1.3
+Rsubset <- filter(params_grid, R0=1.2)
+for(idx in 1:nrow(Rsubset)){
   R0 <- params_grid[idx,][1]
   sqc <- params_grid[idx,][2]
   vac <- params_grid[idx,][3]
@@ -140,6 +142,10 @@ sum(dogs$mean)
 # (886.805 - 776.412) / (886.805/100) # 13%
 
 ### BOXPLOT (of exposed and infectious dogs)
+palbox <- hp(n = 4, house = "RonWeasley")
+plot(1:4, 1:4, col=palbox, pch=16, cex=3)
+mygray <- alpha("gray", 0.1)
+
 ## Set up theme
 theme_set(theme_bw() +
             theme(panel.grid.major=element_blank(),
@@ -153,12 +159,12 @@ theme_set(theme_bw() +
                   text=element_text(size=5),
                   legend.key.size = unit(0.3, 'cm')))
 
-data <- data.frame(team=rep(c('A', 'B', 'C'), each=50),
-                   program=rep(c('low', 'high'), each=25),
-                   values=seq(1:150)+sample(1:100, 150, replace=TRUE))
-tibble(data)
-ggplot(data, aes(x=team, y=values, fill=program)) +
-  geom_boxplot()
+# data <- data.frame(team=rep(c('A', 'B', 'C'), each=50),
+#                    program=rep(c('low', 'high'), each=25),
+#                    values=seq(1:150)+sample(1:100, 150, replace=TRUE))
+# tibble(data)
+# ggplot(data, aes(x=team, y=values, fill=program)) +
+#   geom_boxplot()
 
 # labs
 supp.labs <- paste("R0 =", unique(final_frame_box$R0))
@@ -172,32 +178,29 @@ final_frame_box <- tibble(final_frame_box) %>%
   mutate(Vaccination = as.factor(Vaccination)) %>%
   mutate(Quarantine = as.factor(Quarantine))
 
-test <- filter(final_frame_box, R0==1.3)
-ggplot(test, aes(x=Quarantine, y=expD+infD, fill=Vaccination)) +
-  geom_boxplot()
-
+# test <- filter(final_frame_box, R0==1.3)
+# ggplot(test, aes(x=Quarantine, y=expD+infD, fill=Vaccination)) +
+#   geom_boxplot()
 p_box <- ggplot(data = final_frame_box, aes(x=Quarantine, y=expD+infD, fill=Vaccination)) +
-  geom_boxplot() +
-  facet_wrap(~R0, labeller = to_string) +
+  geom_boxplot(outlier.size = 0.05, lwd=0.1, outlier.color=mygray) +
+  # geom_boxplot(outlier.shape = NA) +
+  facet_wrap(~R0, labeller = to_string, scales="free") +
+  scale_fill_manual(values=c(rev(palbox)), labels=c("0%", "25%", "50%", "75%"), name="Vaccination") + 
   ylab("Monthly no. of infected dogs (E+I)") + xlab("Quarantine") +
   theme(strip.background = element_blank())
 
-# change colours
-# make ylim flexible so that lower counts vissible
-# see if points in boxplot can be smaller and semi-trasparent
+g1 <- p_box %+% dplyr::filter(final_frame_box, R0 == 1.3) + theme(legend.position = "none")
+g2 <- p_box %+% dplyr::filter(final_frame_box, R0 != 1.3) + facet_wrap(~R0, nrow=2, scales="free")
 
-g1 <- p_box %+% dplyr::filter(final_frame_box, R0 == 1) + theme(legend.position = "none")
-g2 <- p_box %+% dplyr::filter(final_frame_box, R0 != 1) + facet_wrap(~R0, nrow=2)
-
-infection_grid <- gridExtra::grid.arrange(g1, g2,
+infection_compgrid <- gridExtra::grid.arrange(g1, g2,
                                           layout_matrix = 
                                             matrix(c(1, 1, 1, 2, 2, 2, 2, 2, 2,
                                                      1, 1, 1, 2, 2, 2, 2, 2, 2),
                                                    byrow = TRUE, nrow = 2))
 
-ggsave("figs/Infection_CompGrid.png", width = 20, height = 18, units = "cm")
+ggsave("figs/Infection_CompGrid.png", width = 20, height = 9, units = "cm")
 
-# scale_fill_manual(values=c(colgreen, colpink), name="", labels=c("stable", "unstable")) + # will need to change colours
+# scale_fill_manual(values=c("pruple", "red", "green", "brown"), name="", labels=c("0%", "25%", "50%", "75%")) + # will need to change colours
 
 
 
