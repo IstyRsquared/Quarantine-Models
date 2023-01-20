@@ -204,7 +204,7 @@ theme_set(theme_bw() +
                   axis.text=element_text(size=5),
                   axis.title.x = element_text(size = 5),
                   axis.title.y = element_text(size = 5),
-                  legend.title=element_blank(),
+                  # legend.title=element_blank(),
                   legend.text = element_text(size = 4),
                   text=element_text(size=5),
                   legend.key.size = unit(0.3, 'cm')))
@@ -235,7 +235,7 @@ p_box <- ggplot(data = final_frame_box, aes(x=Quarantine, y=expD+infD, fill=Vacc
   geom_boxplot(outlier.size = 0.05, lwd=0.1, outlier.color=mygray) +
   # geom_boxplot(outlier.shape = NA) +
   facet_wrap(~R0, labeller = to_string, scales="free") +
-  scale_fill_manual(values=c(q4), labels=c("0%", "25%", "50%", "75%"), name="Vaccination") + 
+  scale_fill_manual(name="Vaccination", values=c(q4), labels=c("0%", "25%", "50%", "75%")) + 
   ylab("Monthly no. of infected dogs (E+I)") + xlab("Quarantine scenario") +
   theme(strip.background = element_blank())
 
@@ -248,7 +248,7 @@ Infection_CompGrid <- gridExtra::grid.arrange(g1, g2,
                                                      1, 1, 1, 2, 2, 2, 2, 2, 2),
                                                    byrow = TRUE, nrow = 2))
 
-ggsave("figs/Infection_CompGrid.png", width = 20, height = 9, units = "cm")
+ggsave("figs/Infection_CompGrid.png", plot=Infection_CompGrid, width = 20, height = 9, units = "cm")
 
 
 

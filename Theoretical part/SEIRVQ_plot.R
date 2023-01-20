@@ -71,8 +71,8 @@ p_stability <- ggplot(data = filter(final_df, variable=="stability"), aes(vc, q,
   theme(strip.background = element_blank())
 
 stab_dat <- filter(final_df, variable=="stability")
-g1 <- p_stability %+% dplyr::filter(stab_dat, R0 == 1) + theme(legend.position = "none")
-g2 <- p_stability %+% dplyr::filter(stab_dat, R0 != 1) + facet_wrap(~R0, nrow=2)
+g1 <- p_stability %+% dplyr::filter(stab_dat, R0 == 1.3) + theme(legend.position = "none")
+g2 <- p_stability %+% dplyr::filter(stab_dat, R0 != 1.3) + facet_wrap(~R0, nrow=2)
 
 stability_grid <- gridExtra::grid.arrange(g1, g2,
                         layout_matrix = 
@@ -118,8 +118,8 @@ p_popinf <- ggplot(data = filter(inf.dogs, variable=="infection"), aes(vc, q, fi
   scale_fill_gradientn(colours=col, na.value = "gray90") +
   theme(strip.background = element_blank()) 
 
-g1 <- p_popinf %+% dplyr::filter(inf.dogs, R0 == 1) + theme(legend.position = "none")
-g2 <- p_popinf %+% dplyr::filter(inf.dogs, R0 != 1) + facet_wrap(~R0, nrow=2)
+g1 <- p_popinf %+% dplyr::filter(inf.dogs, R0 == 1.3) + theme(legend.position = "none")
+g2 <- p_popinf %+% dplyr::filter(inf.dogs, R0 != 1.3) + facet_wrap(~R0, nrow=2)
 
 infection_grid <- gridExtra::grid.arrange(g1, g2,
                                           layout_matrix = 
