@@ -72,18 +72,60 @@ for(idx in 1:nrow(params_grid)){
 # write.csv(final_frame_box, "output/MS_monthly_infection_boxplot.csv", row.names=F) 
 
 #################################################################################################################################################
-final_frame_box <- read.csv("output/MS_monthly_infection_boxplot.csv")
+### TIME SERIES (of dead dogs and humans)
+final_list_ts <- readRDS("output/MS_monthly_infection_ts.Rdata") 
 
-# cols
+## colours
 pal <- hp(n = 10, house = "Slytherin")
 colgreen <- pal[10]; colgreenlight <- pal[3]
 pal <- hp(n = 10, option = "LunaLovegood")
 colpink <- pal[7]; colpinkdark <- pal[10]
 
-### TIME SERIES (of dead dogs and humans)
-# plot only for R0=1.2 or 1.3
-Rsubset <- filter(params_grid, R0=1.2)
+## Plot only for R0=1.2 or 1.3
+Rsubset <- filter(params_grid, R0==1.3)
 for(idx in 1:nrow(Rsubset)){
+  R0 <- Rsubset[idx,][1]
+  sqc <- Rsubset[idx,][2]
+  vac <- Rsubset[idx,][3]
+  path <- paste0("figs/ts/MS_sim_runs_R0", R0, "_sqc", sqc, "_vc", vac, ".pdf")
+  
+  ind <- which(paste(R0, sqc, vac)==paste(params_grid$R0, params_grid$sqc, params_grid$vc))
+  stats_mthly <- final_list_ts[[ind]]
+  dogs <- stats_mthly[[1]]
+  humans <- stats_mthly[[4]]
+  
+  pdf(path, width=6, height=4)
+  par(mar=c(5,5.5,1,1.5))
+  # main dogs
+  x<-1:nrow(dogs)
+  plot(dogs$mean~x,type="l", ylab="",xlab="", axes=F,ylim=c(0, max(dogs$upperPI)), xaxt="n", 
+       bty="n", main=paste0("Vaccination ", vac*100, "%"), cex.main=.7)
+  title(xlab = "Time (months)", line = 2, cex.lab=.7)            
+  title(ylab = "Canine rabies cases", line = 2, cex.lab=.7)   
+  # plot(dogs$mean~x,type="l",cex.lab=1,ylab="Canine rabies cases",xlab="Time (months)", axes=F,ylim=c(0,130), xaxt="n", bty="n")
+  axis(1, at=seq(1,61,12), labels=paste("Jan",c(2018, 2019, 2020, 2021, 2022, 2023)), cex.axis=0.7)
+  axis(2, cex.axis=0.7)
+  axis(1,at=seq(1,61,3),lab=rep("",length(seq(1,61,3))),tck=-0.01)
+  polygon(c(1:nrow(dogs),nrow(dogs):1),c(dogs$upperPI,rev(dogs$lowerPI)),col=colpink,border=F)
+  lines(dogs$mean~x,col=colpinkdark,lwd=2)
+  
+  # inset humans
+  par(new=TRUE, mar=c(0,0,0,0),mfrow=c(1,1), plt=c(0.67, 0.93, 0.67, 0.89), cex=0.72)
+  x<-1:nrow(humans)
+  plot(humans$mean~x,type="l",ylab="",xlab="",axes=F,ylim=c(0,max(humans$upperPI)), xaxt="n", bty="n")
+  # plot(humans$mean~x,type="l",cex.lab=1,ylab="Human rabies cases",xlab="Time (months)",axes=F,ylim=c(0,10), xaxt="n", bty="n")
+  # title(xlab = "Time (months)", line = 2)            
+  title(ylab = "Human rabies cases", line = 2, cex.lab=.7)   
+  axis(1,at=seq(1,61,12),labels=c(2018, 2019, 2020, 2021, 2022, 2023), cex.axis=0.7, tck=-0.05)
+  axis(1, at=seq(1,61,3), lab=rep("",length(seq(1,61,3))),tck=-0.01)
+  axis(2, cex.axis=.7, tck=-0.05)
+  polygon(c(1:nrow(humans),nrow(humans):1),c(humans$upperPI,rev(humans$lowerPI)),col=colgreenlight,border=F)
+  lines(humans$mean~x,col=colgreen,lwd=2)
+  dev.off()
+}
+
+## Plot all individually
+for(idx in 1:nrow(params_grid)){
   R0 <- params_grid[idx,][1]
   sqc <- params_grid[idx,][2]
   vac <- params_grid[idx,][3]
@@ -142,8 +184,16 @@ sum(dogs$mean)
 # (886.805 - 776.412) / (886.805/100) # 13%
 
 ### BOXPLOT (of exposed and infectious dogs)
+final_frame_box <- read.csv("output/MS_monthly_infection_boxplot.csv")
+
+## colours
 palbox <- hp(n = 4, house = "RonWeasley")
 plot(1:4, 1:4, col=palbox, pch=16, cex=3)
+
+library("colorspace")
+q4 <- sequential_hcl(4, "PuBuGn")
+plot(1:4, 1:4, col=q4, pch=16, cex=3)
+
 mygray <- alpha("gray", 0.1)
 
 ## Set up theme
@@ -185,14 +235,14 @@ p_box <- ggplot(data = final_frame_box, aes(x=Quarantine, y=expD+infD, fill=Vacc
   geom_boxplot(outlier.size = 0.05, lwd=0.1, outlier.color=mygray) +
   # geom_boxplot(outlier.shape = NA) +
   facet_wrap(~R0, labeller = to_string, scales="free") +
-  scale_fill_manual(values=c(rev(palbox)), labels=c("0%", "25%", "50%", "75%"), name="Vaccination") + 
-  ylab("Monthly no. of infected dogs (E+I)") + xlab("Quarantine") +
+  scale_fill_manual(values=c(q4), labels=c("0%", "25%", "50%", "75%"), name="Vaccination") + 
+  ylab("Monthly no. of infected dogs (E+I)") + xlab("Quarantine scenario") +
   theme(strip.background = element_blank())
 
 g1 <- p_box %+% dplyr::filter(final_frame_box, R0 == 1.3) + theme(legend.position = "none")
 g2 <- p_box %+% dplyr::filter(final_frame_box, R0 != 1.3) + facet_wrap(~R0, nrow=2, scales="free")
 
-infection_compgrid <- gridExtra::grid.arrange(g1, g2,
+Infection_CompGrid <- gridExtra::grid.arrange(g1, g2,
                                           layout_matrix = 
                                             matrix(c(1, 1, 1, 2, 2, 2, 2, 2, 2,
                                                      1, 1, 1, 2, 2, 2, 2, 2, 2),
@@ -200,7 +250,6 @@ infection_compgrid <- gridExtra::grid.arrange(g1, g2,
 
 ggsave("figs/Infection_CompGrid.png", width = 20, height = 9, units = "cm")
 
-# scale_fill_manual(values=c("pruple", "red", "green", "brown"), name="", labels=c("0%", "25%", "50%", "75%")) + # will need to change colours
 
 
 
