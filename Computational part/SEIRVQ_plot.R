@@ -98,8 +98,10 @@ for(idx in 1:nrow(Rsubset)){
   par(mar=c(5,5.5,1,1.5))
   # main dogs
   x<-1:nrow(dogs)
-  plot(dogs$mean~x,type="l", ylab="",xlab="", axes=F,ylim=c(0, max(dogs$upperPI)), xaxt="n", 
-       bty="n", main=paste0("Vaccination ", vac*100, "%"), cex.main=.7)
+  # plot(dogs$mean~x,type="l", ylab="",xlab="", axes=F,ylim=c(0, max(dogs$upperPI)), xaxt="n", 
+  #      bty="n", main=paste0("Vaccination ", vac*100, "%"), cex.main=.7)
+  plot(dogs$mean~x,type="l", ylab="",xlab="", axes=F,ylim=c(0, 120), xaxt="n", 
+       bty="n", main="")
   title(xlab = "Time (months)", line = 2, cex.lab=.7)            
   title(ylab = "Canine rabies cases", line = 2, cex.lab=.7)   
   # plot(dogs$mean~x,type="l",cex.lab=1,ylab="Canine rabies cases",xlab="Time (months)", axes=F,ylim=c(0,130), xaxt="n", bty="n")
