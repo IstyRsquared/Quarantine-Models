@@ -4,6 +4,7 @@
 ## Code: Reads in simulation outputs draws A) monthly ts of human and dog cases, 
 ## B) boxplot of monthly infection
 
+#  test
 rm(list=ls())
 
 # setwd("C:/Users/tui9/Documents/Practice code/Quarantine-Models")
