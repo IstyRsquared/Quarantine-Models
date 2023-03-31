@@ -139,16 +139,7 @@ lines(seq(0, end.time, by=1), counts$I, col="red") # Rabid alive dogs
 sum(counts$I)
 sum(counts$Rill)
 
-# plot(seq(0, end.time, by=1), out[,12], type="l") # dead dogs
-# lines(seq(0, end.time, by=1), out[,16], col="red") # dead humans
 
-# # PEP uptake
-# plot(seq(0, end.time, by=1), counts$Vhs, type="l") # Vhs
-# lines(seq(0, end.time, by=1), counts$Vhe, col="blue") # Vhe
-# lines(seq(0, end.time, by=1), counts$Eh, col="red") # Eh (not given PEP)
-# sum(counts$Eh)
-# sum(counts$Ih)
-# sum(counts$Rh)
 
 
 
