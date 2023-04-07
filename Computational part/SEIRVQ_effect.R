@@ -15,11 +15,12 @@ library(broom)
 
 ## Read in data and intit
 final_frame_box <- read.csv("output/MS_monthly_infection_boxplot.csv")
+final_frame_box$R0 <- as.character(final_frame_box$R0)
 R0s <- seq(1, 2, 0.1)
 
 #################################################################################################################################################
 ### Get stats
-# NOTE: check if POiss would be a better fit
+# NOTE: check if Poiss would be a better fit
 
 statD_res <- matrix(NA, nrow=length(R0s), ncol=7)
 statH_res <- matrix(NA, nrow=length(R0s), ncol=7)
@@ -27,7 +28,7 @@ statD_res[,1] <- statH_res[,1] <- R0s
 
 for(idx in 1:length(R0s)){
   # subset & get total infection
-  Rsubset <- filter(final_frame_box, R0==R0s[idx])
+  Rsubset <- subset(final_frame_box, R0==as.character(R0s[idx]))
   Rsubset$allinfD <- Rsubset$expD + Rsubset$infD 
   
   # run model for dogs & get sig and ests
@@ -42,20 +43,25 @@ for(idx in 1:length(R0s)){
   mod2 <- glm.nb(deadH ~ Vaccination + as.factor(Quarantine), Rsubset, na.action=na.exclude, maxit=1000, link=log)
   statH_res[idx,2:4] <- as.numeric(tidy(mod2)$p.value[2:4])
   statH_res[idx,5:7] <- as.numeric(exp(tidy(mod2)$estimate)[2:4])
+  
+  print(idx)
 }
 
 colnames(statD_res) <- colnames(statH_res) <- c("R0", "pvalVacc", "pvalQ2", "pvalQ3", "VaccQ3", "estQ2", "estQ3")
 colnames(statD_res) <- data.frame(statD_res)
 colnames(statH_res) <- data.frame(statH_res)
 
+head(statD_res)
 # write.csv(statD_res, "output/statD_res.csv", row.names=F)
+head(statH_res)
 # write.csv(statH_res, "output/statH_res.csv", row.names=F)
 
 #################################################################################################################################################
 ### Plot predicted
-Rsubset <- filter(final_frame_box, R0==1.3)
+Rsubset <- filter(final_frame_box, R0=="1.3")
 Rsubset$allinfD <- Rsubset$expD + Rsubset$infD 
 
+# CALCULATE PREDICTIONINTERVAL LIKE IN TS!
 # run model for dogs
 mod1 <- glm.nb(allinfD ~ Vaccination + as.factor(Quarantine), Rsubset, na.action=na.exclude, maxit=1000, link=log)
 summary(mod1)
