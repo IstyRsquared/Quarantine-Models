@@ -22,7 +22,7 @@ R0s <- seq(1, 2, 0.1)
 
 #################################################################################################################################################
 ### Get stats
-# NOTE: check if Poiss would be a better fit
+# NOTE: maybe check if Poiss would be a better fit
 
 statD_res <- matrix(NA, nrow=length(R0s), ncol=7)
 statH_res <- matrix(NA, nrow=length(R0s), ncol=7)
@@ -49,53 +49,53 @@ for(idx in 1:length(R0s)){
   print(idx)
 }
 
-colnames(statD_res) <- colnames(statH_res) <- c("R0", "pvalVacc", "pvalQ2", "pvalQ3", "VaccQ3", "estQ2", "estQ3")
 colnames(statD_res) <- data.frame(statD_res)
 colnames(statH_res) <- data.frame(statH_res)
+colnames(statD_res) <- colnames(statH_res) <- c("R0", "pvalVacc", "pvalQ2", "pvalQ3", "estVacc", "estQ2", "estQ3")
 
 head(statD_res)
-# write.csv(statD_res, "output/statD_res.csv", row.names=F)
+write.csv(statD_res, "output/statD_res.csv", row.names=F)
 head(statH_res)
-# write.csv(statH_res, "output/statH_res.csv", row.names=F)
+write.csv(statH_res, "output/statH_res.csv", row.names=F)
 
 #################################################################################################################################################
-### Plot predicted
-Rsubset <- filter(final_frame_box, R0=="1.3")
-Rsubset$allinfD <- Rsubset$expD + Rsubset$infD 
-
-# CALCULATE PREDICTION INTERVAL LIKE IN TS!
-# run model for dogs
-mod1 <- glm.nb(allinfD ~ Vaccination + as.factor(Quarantine), Rsubset, na.action=na.exclude, maxit=1000, link=log)
-summary(mod1)
-newdata <- expand.grid(Vaccination = c(0, 0.25, 0.5, 0.75), Quarantine = factor(1:3))
-newdata <- cbind(newdata, predict(mod1, newdata, type = "link", se.fit=TRUE))
-newdata <- within(newdata, {
-  Cases <- exp(fit)
-  LL <- exp(fit - 1.96 * se.fit)
-  UL <- exp(fit + 1.96 * se.fit)
-})
-
-ggplot(newdata, aes(Vaccination, Cases)) +
-  geom_ribbon(aes(ymin = LL, ymax = UL, fill = Quarantine), alpha = .25) +
-  geom_line(aes(colour = Quarantine), size = 0.1) +
-  labs(x = "Vaccination", y = "Monthly no. of infected dogs (E+I)")
-
-# run  mod for humans 
-mod2 <- glm.nb(deadH ~ Vaccination + as.factor(Quarantine), Rsubset, na.action=na.exclude, maxit=1000, link=log)
-summary(mod2)
-newdata <- expand.grid(Vaccination = c(0, 0.25, 0.5, 0.75), Quarantine = factor(1:3))
-newdata <- cbind(newdata, predict(mod2, newdata, type = "link", se.fit=TRUE))
-newdata <- within(newdata, {
-  Cases <- exp(fit)
-  LL <- exp(fit - 1.96 * se.fit)
-  UL <- exp(fit + 1.96 * se.fit)
-})
-
-ggplot(newdata, aes(Vaccination, Cases)) +
-  geom_ribbon(aes(ymin = LL, ymax = UL, fill = Quarantine), alpha = .25) +
-  geom_line(aes(colour = Quarantine), size = 0.5) +
-  labs(x = "Vaccination", y = "Monthly no. of human fatalities due to rabies")
-
+# ### Plot predicted
+# Rsubset <- filter(final_frame_box, R0=="1.3")
+# Rsubset$allinfD <- Rsubset$expD + Rsubset$infD 
+# 
+# # CALCULATE PREDICTION INTERVAL LIKE IN TS!
+# # run model for dogs
+# mod1 <- glm.nb(allinfD ~ Vaccination + as.factor(Quarantine), Rsubset, na.action=na.exclude, maxit=1000, link=log)
+# summary(mod1)
+# newdata <- expand.grid(Vaccination = c(0, 0.25, 0.5, 0.75), Quarantine = factor(1:3))
+# newdata <- cbind(newdata, predict(mod1, newdata, type = "link", se.fit=TRUE))
+# newdata <- within(newdata, {
+#   Cases <- exp(fit)
+#   LL <- exp(fit - 1.96 * se.fit)
+#   UL <- exp(fit + 1.96 * se.fit)
+# })
+# 
+# ggplot(newdata, aes(Vaccination, Cases)) +
+#   geom_ribbon(aes(ymin = LL, ymax = UL, fill = Quarantine), alpha = .25) +
+#   geom_line(aes(colour = Quarantine), size = 0.1) +
+#   labs(x = "Vaccination", y = "Monthly no. of infected dogs (E+I)")
+# 
+# # run  mod for humans 
+# mod2 <- glm.nb(deadH ~ Vaccination + as.factor(Quarantine), Rsubset, na.action=na.exclude, maxit=1000, link=log)
+# summary(mod2)
+# newdata <- expand.grid(Vaccination = c(0, 0.25, 0.5, 0.75), Quarantine = factor(1:3))
+# newdata <- cbind(newdata, predict(mod2, newdata, type = "link", se.fit=TRUE))
+# newdata <- within(newdata, {
+#   Cases <- exp(fit)
+#   LL <- exp(fit - 1.96 * se.fit)
+#   UL <- exp(fit + 1.96 * se.fit)
+# })
+# 
+# ggplot(newdata, aes(Vaccination, Cases)) +
+#   geom_ribbon(aes(ymin = LL, ymax = UL, fill = Quarantine), alpha = .25) +
+#   geom_line(aes(colour = Quarantine), size = 0.5) +
+#   labs(x = "Vaccination", y = "Monthly no. of human fatalities due to rabies")
+# 
 
 # ## Calculate human cases
 # # low: 4, high: 6
