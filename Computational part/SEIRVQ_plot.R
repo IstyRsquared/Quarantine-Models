@@ -24,6 +24,7 @@ params_grid <- expand.grid(list(R0 = R0s, # reproductive number
                                 vc = vc.temp)) # vaccination scenarios
 
 final_frame_box <- c()
+final_frame_box_burnout <- c()
 final_list_ts <- vector("list", length=nrow(params_grid))
 
 weeks <- seq(as.Date("2018-01-01"), as.Date("2022-12-31"), by="week")
@@ -45,10 +46,21 @@ for(idx in 1:nrow(params_grid)){
   }
   
   ### Boxplot figs (keep as is)
+  # with burn-in
   final_frame_box <- rbind(final_frame_box, 
                        data.frame(R0=params_grid$R0[idx], Quarantine=params_grid$sqc[idx], Vaccination=params_grid$vc[idx],
                                   deadD=as.vector(t(sum_mthly[[1]])), expD=as.vector(t(sum_mthly[[2]])), 
                                   infD=as.vector(t(sum_mthly[[3]])), deadH=as.vector(t(sum_mthly[[4]]))))
+  
+  # without burn-in
+  deadD_df <- t(sum_mthly[[1]])
+  expD_df <- t(sum_mthly[[2]])
+  infD_df <- t(sum_mthly[[3]])
+  deadH_df <- t(sum_mthly[[4]])
+  final_frame_box_burnout <- rbind(final_frame_box_burnout, 
+                                   data.frame(R0=params_grid$R0[idx], Quarantine=params_grid$sqc[idx], Vaccination=params_grid$vc[idx],
+                                              deadD=as.vector(deadD_df[,7:60]), expD=as.vector(expD_df[,7:60]), 
+                                              infD=as.vector(infD_df[,7:60]), deadH=as.vector(deadH_df[,7:60])))
   
   ### Time series figs (average over sims)
   stats_mthly <- vector("list", length(sum_mthly))
@@ -70,6 +82,7 @@ for(idx in 1:nrow(params_grid)){
 
 # saveRDS(final_list_ts, "output/MS_monthly_infection_ts.Rdata") 
 # write.csv(final_frame_box, "output/MS_monthly_infection_boxplot.csv", row.names=F) 
+write.csv(final_frame_box_burnout, "output/MS_monthly_infection_boxplot_burnout.csv", row.names=F) 
 
 #################################################################################################################################################
 ### TIME SERIES (of dead dogs and humans)
@@ -164,7 +177,8 @@ for(idx in 1:nrow(Rsubset)){
 
 #################################################################################################################################################
 ### BOXPLOT (of exposed and infectious dogs)
-final_frame_box <- read.csv("output/MS_monthly_infection_boxplot.csv")
+# final_frame_box <- read.csv("output/MS_monthly_infection_boxplot.csv")
+final_frame_box <- read.csv("output/MS_monthly_infection_boxplot_burnout.csv") 
 
 ## colours
 palbox <- hp(n = 4, house = "RonWeasley")
@@ -228,8 +242,8 @@ Infection_CompGrid <- gridExtra::grid.arrange(g1, g2,
                                                      1, 1, 1, 2, 2, 2, 2, 2, 2),
                                                    byrow = TRUE, nrow = 2))
 
-ggsave("figs/Infection_CompGrid.png", plot=Infection_CompGrid, width = 20, height = 9, units = "cm")
-
+# ggsave("figs/Infection_CompGrid.png", plot=Infection_CompGrid, width = 20, height = 9, units = "cm")
+ggsave("figs/InfectionBurninout_CompGrid.png", plot=Infection_CompGrid, width = 20, height = 9, units = "cm")
 
 
 

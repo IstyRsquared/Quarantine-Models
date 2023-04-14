@@ -14,7 +14,9 @@ library(MASS)
 library(broom)
 
 ## Read in data and intit
-final_frame_box <- read.csv("output/MS_monthly_infection_boxplot.csv")
+# final_frame_box <- read.csv("output/MS_monthly_infection_boxplot.csv")
+final_frame_box <- read.csv("output/MS_monthly_infection_boxplot_burnout.csv") 
+
 final_frame_box$R0 <- as.character(final_frame_box$R0)
 R0s <- seq(1, 2, 0.1)
 
@@ -61,7 +63,7 @@ head(statH_res)
 Rsubset <- filter(final_frame_box, R0=="1.3")
 Rsubset$allinfD <- Rsubset$expD + Rsubset$infD 
 
-# CALCULATE PREDICTIONINTERVAL LIKE IN TS!
+# CALCULATE PREDICTION INTERVAL LIKE IN TS!
 # run model for dogs
 mod1 <- glm.nb(allinfD ~ Vaccination + as.factor(Quarantine), Rsubset, na.action=na.exclude, maxit=1000, link=log)
 summary(mod1)
