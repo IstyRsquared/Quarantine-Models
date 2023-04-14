@@ -24,7 +24,7 @@ params_grid <- expand.grid(list(R0 = R0s, # reproductive number
                                 vc = vc.temp)) # vaccination scenarios
 
 final_frame_box <- c()
-final_frame_box_burnout <- c()
+final_frame_box_burnout <- c() # remove burn-in period (1st 6 months)
 final_list_ts <- vector("list", length=nrow(params_grid))
 
 weeks <- seq(as.Date("2018-01-01"), as.Date("2022-12-31"), by="week")
