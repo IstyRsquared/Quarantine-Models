@@ -147,11 +147,16 @@ plot(1:4, 1:4, col=borderq4, pch=16, cex=3)
 R0 <- 1.3
 sqcs <- 1:3
 vacs <- c(0, 0.25, 0.5, 0.75)
+
+path <- "figs/ts/MS_sim_runs_R01.3_sqcall_vcall.pdf"
+pdf(path, width=5, height=8)
+par(mfrow=c(3,1))
+
 for(idx in 1:length(sqcs)){
   sqc <- sqcs[idx]
-  path <- paste0("figs/ts/MS_sim_runs_R0", R0, "_sqc", sqc, "_vcall.pdf")
+  # path <- paste0("figs/ts/MS_sim_runs_R0", R0, "_sqc", sqc, "_vcall.pdf")
+  # pdf(path, width=6, height=4)
   
-  pdf(path, width=6, height=4)
   for(i in 1:length(vacs)){
     ind <- which(paste(R0, sqc, vacs[i])==paste(params_grid$R0, params_grid$sqc, params_grid$vc))
     
@@ -164,10 +169,10 @@ for(idx in 1:length(sqcs)){
     if(i==1){
       x<-1:nrow(dogs)
       plot(dogs$mean~x,type="l", ylab="", xlab="", axes=F, ylim=c(0, 50), xaxt="n", bty="n")
-      title(xlab = "Time (months)", line = 2, cex.lab=.7)            
-      title(ylab = "Canine rabies cases", line = 2, cex.lab=.7)   
-      axis(1, at=seq(7,55,12), labels=paste("Year", 2:6), cex.axis=0.7)
-      axis(2, cex.axis=0.7)
+      title(xlab = "Time", line = 2, cex.lab=.9)            
+      title(ylab = "Monthly no. of infected dogs (E+I)", line = 2, cex.lab=.9)   
+      axis(1, at=seq(7,55,12), labels=paste("Year", 2:6), cex.axis=0.8)
+      axis(2, cex.axis=0.8)
       axis(1, at=seq(1,54,3), lab=rep("",length(seq(1,54,3))), tck=-0.01)
       polygon(c(1:nrow(dogs), nrow(dogs):1), c(dogs$upperPI, rev(dogs$lowerPI)), col=borderq4[i], border=F)
       lines(dogs$mean~x, col=linesq4[i],lwd=1)
@@ -178,12 +183,54 @@ for(idx in 1:length(sqcs)){
     
     # add legend
     if(idx==3 & i==4){
-      legend(46, 50, title="Vaccination", legend=c("0%", "25%", "50%", "75%"),
-      col=linesq4, lty=c(1,1,1,1), cex=0.5, box.lty=0)
+      legend(48, 50, title="Vaccination", legend=c("0%", "25%", "50%", "75%"),
+      col=linesq4, lty=c(1,1,1,1), cex=0.7, box.lty=0)
     }
   }
-  dev.off()
+  # dev.off()
 }
+dev.off()
+
+path <- "figs/ts/MS_sim_runs_R01.3_sqcall_vcallB.pdf"
+mains <- c("A/", "B/", "C/", "D/")
+borderq4 <- c(alpha(q4[1:2], 0.1), alpha(q4[3], 0.3), alpha(q4[4], 0.3))
+pdf(path, width=8, height=6)
+par(mfrow=c(2,2))
+
+for(idx in 1:length(vacs)){
+  vacc <- vacs[idx]
+
+  for(i in 1:length(sqcs)){
+    ind <- which(paste(R0, sqcs[i], vacc)==paste(params_grid$R0, params_grid$sqc, params_grid$vc))
+    
+    stats_mthly <- final_list_ts[[ind]]
+    dogs <- stats_mthly[[1]]
+    dogs <- dogs[(7:60),]
+    
+    if(i==1){
+      x<-1:nrow(dogs)
+      plot(dogs$mean~x,type="l", ylab="", xlab="", axes=F, ylim=c(0, 50), xaxt="n", bty="n")
+      title(xlab = "Time", line = 2, cex.lab=.8)     
+      title(mains[idx], adj = 0, line = 1, cex.main=.8)
+      title(ylab = "Monthly no. of infected dogs (E+I)", line = 2, cex.lab=.9)   
+      axis(1, at=seq(7,55,12), labels=paste("Year", 2:6), cex.axis=0.8)
+      axis(2, cex.axis=0.8)
+      axis(1, at=seq(1,54,3), lab=rep("",length(seq(1,54,3))), tck=-0.01)
+      polygon(c(1:nrow(dogs), nrow(dogs):1), c(dogs$upperPI, rev(dogs$lowerPI)), col=borderq4[i], border=F)
+      lines(dogs$mean~x, col=linesq4[i],lwd=1)
+    }else{
+      polygon(c(1:nrow(dogs), nrow(dogs):1), c(dogs$upperPI, rev(dogs$lowerPI)), col=borderq4[i], border=F)
+      lines(dogs$mean~x, col=linesq4[i],lwd=1)
+    }
+    
+    # add legend
+    if(idx==4 & i==3){
+      legend(35, 50, title="Quarantine scenario", legend=c("1", "2", "3"),
+             col=linesq4, lty=c(1,1,1), cex=0.65, box.lty=0)
+    }
+  }
+}
+dev.off()
 
 
 #################################################################################################################################################
