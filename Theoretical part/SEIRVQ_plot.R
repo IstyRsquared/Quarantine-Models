@@ -31,7 +31,9 @@ pal <- hp(n=8, option = "LunaLovegood")
 plot(1:8, 1:8, col=pal, pch=16, cex=3)
 colpink <- pal[6]
 
-col <- colorRampPalette(c(colgreen, colpink))(15); plot(1:15, 1:15, col=col, pch=16, cex=3)
+colblue <- "dodgerblue4"
+# col <- colorRampPalette(c(colgreen, colpink))(15); plot(1:15, 1:15, col=col, pch=16, cex=3)
+col <- rev(colorRampPalette(c(colblue, colpink))(15)); plot(1:15, 1:15, col=col, pch=16, cex=3)
 
 # test <- filter(final_df, variable=="stability", R0=="1.5")
 # unique(test$value)
@@ -66,7 +68,7 @@ theme_set(theme_bw() +
 p_stability <- ggplot(data = filter(final_df, variable=="stability"), aes(vc, q, fill = as.factor(value))) +
   geom_raster() +
   facet_wrap(~R0, labeller = to_string) +
-  scale_fill_manual(values=c(colgreen, colpink), name="", labels=c("stable", "unstable")) +
+  scale_fill_manual(values=c(colblue, colpink), name="", labels=c("stable", "unstable")) +
   xlab("Vaccination rate (vc)") + ylab("Quarantine rate (q)") +
   theme(strip.background = element_blank())
 
@@ -127,10 +129,10 @@ infection_grid <- gridExtra::grid.arrange(g1, g2,
                                                      1, 1, 1, 2, 2, 2, 2, 2, 2),
                                                    byrow = TRUE, nrow = 2))
 ## Bind
-(Stability_InfectedPop_Grid <- ggpubr::ggarrange(stability_grid, infection_grid,
+Stability_InfectedPop_Grid <- ggpubr::ggarrange(stability_grid, infection_grid,
                                             ncol=1, labels=c("A/ Stability","B/ Infected population"),
                                             hjust = -0.1,
-                                            font.label = list(size = 5)))
+                                            font.label = list(size = 5))
 
 ggsave("figs/Stability_InfectedPop_Grid.png", width = 20, height = 18, units = "cm")
 
