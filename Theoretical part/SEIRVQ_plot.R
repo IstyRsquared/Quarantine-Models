@@ -33,7 +33,7 @@ colpink <- pal[6]
 
 colblue <- "dodgerblue4"
 # col <- colorRampPalette(c(colgreen, colpink))(15); plot(1:15, 1:15, col=col, pch=16, cex=3)
-col <- rev(colorRampPalette(c(colblue, colpink))(15)); plot(1:15, 1:15, col=col, pch=16, cex=3)
+col <- colorRampPalette(c(colblue, colpink))(15); plot(1:15, 1:15, col=col, pch=16, cex=3)
 
 # test <- filter(final_df, variable=="stability", R0=="1.5")
 # unique(test$value)
