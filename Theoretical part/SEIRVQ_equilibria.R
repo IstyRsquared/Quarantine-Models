@@ -16,10 +16,10 @@ library("grDevices")
 source("R/model_params.R")
 
 ## Parameters (by week)
-b <- as.numeric(params1["b"]) # birth rate
-d <- as.numeric(params1["d"]) # death rate
-sigma <- as.numeric(params1["sigma"]) # incubation rate
-gamma <- as.numeric(params1["gamma"]) # recovery rate
+b <- as.numeric(params_list[[1]]["b"]) # birth rate
+d <- as.numeric(params_list[[1]]["d"]) # death rate
+sigma <- as.numeric(params_list[[1]]["sigma"]) # incubation rate
+gamma <- as.numeric(params_list[[1]]["gamma"]) # recovery rate
 wn <- 1/(52*3) # immunity loss each week; vaccine lonegevity ~ 3 yeras
 del <- (1/2)*7/7 # delay before quarantined
 tau <- gamma/(1-(gamma*del)) # removal rate from the quarantined class
@@ -37,11 +37,6 @@ vcs <- ifelse(is.infinite(-log(1-vcs)/53), 3/53, -log(1-vcs)/53)
 params_grid <- expand.grid(list(R0 = R0s, # reproductive number
                                 q = qs, # quarantine rate
                                 vc = vcs)) # vaccination rate
-
-# # test
-# params_grid <- expand.grid(list(R0 = 2, # reproductive number
-#                                 q = qs, # quarantine rate
-#                                 vc = vcs)) # vaccination rate
 
 ## Initialize
 N <- 200000
@@ -115,19 +110,19 @@ for(i in 1:nrow(eigens.all)){
   }
 }
 
-# infection
-infection <- Istar.all + Estar.all 
-
 # combine in df
 params <- expand.grid(list(R0 = seq(1, 2, 0.1), # reproductive number
                            q = seq(0, 1, 0.05) , # quarantine rate
                            vc = seq(0, 1, 0.05))) # vaccination rate
+pop <- Sstar.all + Estar.all + Istar.all + Qstar.all + Vstar.all 
 
 sign_df <- cbind(params_grid, variable=rep("stability", length(sign)), value=as.numeric(sign))
 period_df <- cbind(params, variable=rep("period", length(periods.all)), value=as.numeric(periods.all))
-inf_df <- cbind(params, variable=rep("infection", length(infection)), value=as.numeric(infection))
+i_df <- cbind(params, variable=rep("infection", length(Istar.all)), value=as.numeric(Istar.all))
+e_df <- cbind(params, variable=rep("infection", length(Estar.all)), value=as.numeric(Estar.all))
+N_df <- cbind(params, variable=rep("infection", length(pop)), value=as.numeric(pop))
 
-final_df <- rbind(sign_df, period_df, inf_df)
+final_df <- rbind(sign_df, period_df, i_df, e_df, N_df)
 head(final_df); tail(final_df)
 # write.csv(final_df, "output/SEIRVQrabies_EndemicEquilibrium.csv", row.names=F)
 

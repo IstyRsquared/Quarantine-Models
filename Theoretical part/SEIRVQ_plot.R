@@ -4,7 +4,6 @@
 ## Code: Theoretical part - takes output from SEI(R)VQ stability analysis and draws plots
 
 rm(list=ls())
-setwd("C:/Users/tui9/Documents/Practice code/Quarantine-Models")
 setwd("~/Documents/Rabies_Warwick/Quarantine-models")
 
 ## Libraries 
