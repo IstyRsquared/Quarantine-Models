@@ -116,7 +116,7 @@ params <- expand.grid(list(R0 = seq(1, 2, 0.1), # reproductive number
                            vc = seq(0, 1, 0.05))) # vaccination rate
 pop <- Sstar.all + Estar.all + Istar.all + Qstar.all + Vstar.all 
 
-sign_df <- cbind(params_grid, variable=rep("stability", length(sign)), value=as.numeric(sign))
+sign_df <- cbind(params, variable=rep("stability", length(sign)), value=as.numeric(sign))
 period_df <- cbind(params, variable=rep("period", length(periods.all)), value=as.numeric(periods.all))
 i_df <- cbind(params, variable=rep("infection", length(Istar.all)), value=as.numeric(Istar.all))
 e_df <- cbind(params, variable=rep("infection", length(Estar.all)), value=as.numeric(Estar.all))

@@ -20,8 +20,8 @@ nsim <- 1000
 R0s <- seq(1, 2, 0.1) 
 R0 <- R0s[8]
 sqcs <- 1:3 
-vc.temp <-  c(0, 0.25, 0.5, 0.75)
-vcs <- ifelse(is.infinite(-log(1-vc.temp)/53), vc.temp, -log(1-vc.temp)/53)
+vcs <-  seq(0, 1, 0.05)
+vcs <- ifelse(is.infinite(-log(1-vcs)/53), 3/53, -log(1-vcs)/53)
 
 params_grid <- expand.grid(list(R0 = R0, # reproductive number
                                 sqc = sqcs, # quarantine scenarios

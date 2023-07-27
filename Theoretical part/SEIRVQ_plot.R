@@ -39,7 +39,7 @@ col <- colorRampPalette(c(colblue, colpink))(15); plot(1:15, 1:15, col=col, pch=
 # ggplot(test, aes( x=vc, y=q, fill = value)) +
 #   geom_raster()
 # y=unique(test$q)
-# x=unique(test$vc) 
+# x=unique(test$vc)
 # z=matrix(test$value, ncol=length(y), nrow=length(x))
 # image(x=x, y=y, z=z, xlab="qP", ylab="vcP", col=col, main="Stability", cex.axis=.6, cex.main=.75, cex.lab=.7)
 
@@ -57,18 +57,11 @@ theme_set(theme_bw() +
                   legend.key.size = unit(0.3, 'cm')))
 
 ################# STABILITY PLOTS #################
-# p_stability <- ggplot(data = filter(final_df, variable=="stability"), aes(vc, q, fill = as.factor(value))) +
-#   geom_raster() +
-#   facet_wrap(~R0, nrow=2) +
-#   scale_fill_manual(values=c(colgreen, colpink), name="") +
-#   xlab("Vaccination rate (vc)") + ylab("Quarantine rate (q)") +
-#   theme(strip.background = element_blank())
-
 p_stability <- ggplot(data = filter(final_df, variable=="stability"), aes(vc, q, fill = as.factor(value))) +
   geom_raster() +
   facet_wrap(~R0, labeller = to_string) +
   scale_fill_manual(values=c(colblue, colpink), name="", labels=c("stable", "unstable")) +
-  xlab("Vaccination rate (vc)") + ylab("Quarantine rate (q)") +
+  xlab("Vaccination rate (vc)") + ylab("Quarantine rate (q)") + # labels need changing
   theme(strip.background = element_blank())
 
 stab_dat <- filter(final_df, variable=="stability")
