@@ -6,9 +6,12 @@
 rm(list=ls())
 setwd("~/Documents/Rabies_Warwick/Quarantine-models")
 
+source("R/incursion_params.R")
+
 ### Libraries 
 source("R/TauLeap_SEIRfc_vacc_explicit_updated.R")
-source("R/quarantine_params.R")
+# source("R/quarantine_params.R")
+source("R/incursion_params.R") 
 
 ### Parameters and initial conditions 
 ## Simulation
