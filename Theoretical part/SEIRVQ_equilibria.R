@@ -118,12 +118,13 @@ pop <- Sstar.all + Estar.all + Istar.all + Qstar.all + Vstar.all
 
 sign_df <- cbind(params, variable=rep("stability", length(sign)), value=as.numeric(sign))
 period_df <- cbind(params, variable=rep("period", length(periods.all)), value=as.numeric(periods.all))
-i_df <- cbind(params, variable=rep("infection", length(Istar.all)), value=as.numeric(Istar.all))
-e_df <- cbind(params, variable=rep("infection", length(Estar.all)), value=as.numeric(Estar.all))
-N_df <- cbind(params, variable=rep("infection", length(pop)), value=as.numeric(pop))
+i_df <- cbind(params, variable=rep("infected", length(Istar.all)), value=as.numeric(Istar.all))
+e_df <- cbind(params, variable=rep("exposed", length(Estar.all)), value=as.numeric(Estar.all))
+N_df <- cbind(params, variable=rep("pop", length(pop)), value=as.numeric(pop))
 
 final_df <- rbind(sign_df, period_df, i_df, e_df, N_df)
 head(final_df); tail(final_df)
+unique(final_df$variable)
 # write.csv(final_df, "output/SEIRVQrabies_EndemicEquilibrium.csv", row.names=F)
 
 

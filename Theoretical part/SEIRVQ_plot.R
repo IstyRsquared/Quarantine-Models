@@ -48,20 +48,20 @@ theme_set(theme_bw() +
             theme(panel.grid.major=element_blank(),
                   panel.grid.minor=element_blank(),
                   panel.border=element_blank(),
-                  axis.text=element_text(size=5),
-                  axis.title.x = element_text(size = 5),
-                  axis.title.y = element_text(size = 5),
+                  axis.text=element_text(size=7),
+                  axis.title.x = element_text(size = 7),
+                  axis.title.y = element_text(size = 7),
                   legend.title=element_blank(),
-                  legend.text = element_text(size = 4),
-                  text=element_text(size=5),
-                  legend.key.size = unit(0.3, 'cm')))
+                  legend.text = element_text(size = 7),
+                  text=element_text(size=7),
+                  legend.key.size = unit(0.8, 'cm')))
 
 ################# STABILITY PLOTS #################
 p_stability <- ggplot(data = filter(final_df, variable=="stability"), aes(vc, q, fill = as.factor(value))) +
   geom_raster() +
   facet_wrap(~R0, labeller = to_string) +
   scale_fill_manual(values=c(colblue, colpink), name="", labels=c("stable", "unstable")) +
-  xlab("Vaccination rate (vc)") + ylab("Quarantine rate (q)") + # labels need changing
+  xlab("Proportion of vaccinated dogs (vp)") + ylab("Proportion of quarantined dogs (qp)") + # labels need changing
   theme(strip.background = element_blank())
 
 stab_dat <- filter(final_df, variable=="stability")
@@ -83,32 +83,16 @@ stability_grid <- gridExtra::grid.arrange(g1, g2,
 #                                                    byrow = TRUE, nrow = 4))
 
 ################# INFECTION PLOTS #################
-# test <- filter(final_df, variable=="infection", R0=="1.5")
-# range(test$value)
-# ggplot(test, aes( x=vc, y=q, fill = value)) +
-#   geom_raster()
-# y=unique(test$q)
-# x=unique(test$vc) 
-# z=matrix(test$value, ncol=length(y), nrow=length(x))
-# image(x=x, y=y, z=z, xlab="qP", ylab="vcP", col=col, main="Infection", cex.axis=.6, cex.main=.75, cex.lab=.7)
-
-### A) Exact inf numbers
-inf_dat <- filter(final_df, variable=="infection")
+### A) Infected dogs
+inf_dat <- filter(final_df, variable=="infected")
 inf.dogs <- tibble(inf_dat)%>%
   mutate(value=ifelse(value<0, NA, value)) # for unstable NA, rest by number!
+inf.dogs$inc_10t <- inf.dogs$value/filter(final_df, variable=="pop")$value*10000
 
-# p_popinf <- ggplot(data = filter(final_df, variable=="infection"), aes(vc, q, fill = value)) +
-#   geom_raster() +
-#   facet_wrap(~ R0, labeller = to_string) +
-#   scale_fill_gradient2(low=colgreen, mid="white", high=colpink, 
-#                        midpoint=0, limits=range(filter(final_df, variable=="infection")$value)) +
-#   xlab("Vaccination rate (vc)") + ylab("Quarantine rate (q)") +
-#   theme(strip.background = element_blank())
-
-p_popinf <- ggplot(data = filter(inf.dogs, variable=="infection"), aes(vc, q, fill = value)) +
+p_popinf <- ggplot(data = inf.dogs, aes(vc, q, fill = inc_10t)) +
   geom_raster() +
   facet_wrap(~ R0, labeller = to_string) +
-  xlab("Vaccination rate (vc)") + ylab("Quarantine rate (q)") +
+  xlab("Proportion of vaccinated dogs (vp)") + ylab("Proportion of quarantined dogs (qp)") +
   scale_fill_gradientn(colours=col, na.value = "gray90") +
   theme(strip.background = element_blank()) 
 
@@ -120,38 +104,42 @@ infection_grid <- gridExtra::grid.arrange(g1, g2,
                                             matrix(c(1, 1, 1, 2, 2, 2, 2, 2, 2,
                                                      1, 1, 1, 2, 2, 2, 2, 2, 2),
                                                    byrow = TRUE, nrow = 2))
-## Bind
-Stability_InfectedPop_Grid <- ggpubr::ggarrange(stability_grid, infection_grid,
-                                            ncol=1, labels=c("A/ Stability","B/ Infected population"),
-                                            hjust = -0.1,
-                                            font.label = list(size = 5))
+### B) Exposed dogs
+exp_dat <- filter(final_df, variable=="exposed")
+exp.dogs <- tibble(exp_dat)%>%
+  mutate(value=ifelse(value<0, NA, value)) # for unstable NA, rest by number!
+exp.dogs$inc_10t <- exp.dogs$value/filter(final_df, variable=="pop")$value*10000
 
-ggsave("figs/Stability_InfectedPop_Grid.png", width = 20, height = 18, units = "cm")
-
-### B) Infection +/-
-df.temp <- tibble(inf_dat)%>%
-  mutate(value2 = ifelse(value>0, 1, 0))
-         
-p_popinf <- ggplot(data = filter(df.temp, variable=="infection"), aes(vc, q, fill = as.factor(value2))) +
+p_popexp<- ggplot(data = exp.dogs, aes(vc, q, fill = inc_10t)) +
   geom_raster() +
-  facet_grid(~ R0, labeller = to_string) +
-  scale_fill_manual(values=c(colgreen,colpink), name="", labels=c(">0", "=<0")) +
-  xlab("Vaccination rate (vc)") + ylab("Quarantine rate (q)") +
-  theme(strip.background = element_blank())
+  facet_wrap(~ R0, labeller = to_string) +
+  xlab("Proportion of vaccinated dogs (vp)") + ylab("Proportion of quarantined dogs (qp)") +
+  scale_fill_gradientn(colours=col, na.value = "gray90") +
+  theme(strip.background = element_blank()) 
 
-g1 <- p_popinf %+% dplyr::filter(df.temp, R0 == 1) + theme(legend.position = "none")
-g2 <- p_popinf %+% dplyr::filter(df.temp, R0 != 1) + facet_wrap(~R0, nrow=2)
+g1 <- p_popexp %+% dplyr::filter(exp.dogs, R0 == 1) + theme(legend.position = "none")
+g2 <- p_popexp %+% dplyr::filter(exp.dogs, R0 != 1) + facet_wrap(~R0, nrow=2)
 
-infection_grid <- gridExtra::grid.arrange(g1, g2,
+exposed_grid <- gridExtra::grid.arrange(g1, g2,
                                           layout_matrix = 
                                             matrix(c(1, 1, 1, 2, 2, 2, 2, 2, 2,
                                                      1, 1, 1, 2, 2, 2, 2, 2, 2),
                                                    byrow = TRUE, nrow = 2))
+                                                                                                     byrow = TRUE, nrow = 2))
 ## Bind
-Stability_Infection_Grid <- ggpubr::ggarrange(stability_grid, infection_grid,
-                                               ncol=1, labels=c("Stability","Infection"),
-                                               hjust = -0.1,
-                                               font.label = list(size = 5))
+# Stability_Infection_Grid <- ggpubr::ggarrange(stability_grid, infection_grid,
+#                                               ncol=1, labels=c("Stability","Infection"),
+#                                               hjust = -0.1,
+#                                               font.label = list(size = 5))
 
-ggsave("figs/Stability_Infection_Grid.png", width = 20, height = 18, units = "cm")
+Stability_InfectedPop_Grid <- ggpubr::ggarrange(stability_grid, infection_grid, exposed_grid,
+                                            ncol=1, 
+                                            labels=c("A) Stability","B) Infected incidence/10,000", "C) Exposed insidence/10,000"),
+                                            hjust = -0.1,
+                                            font.label = list(size = 5))
+
+ggsave("figs/Stability_InfectedPop_Grid.png", width = 24, height = 28, units = "cm")
+
+
+# ggsave("figs/Stability_Infection_Grid.png", width = 20, height = 18, units = "cm")
 
