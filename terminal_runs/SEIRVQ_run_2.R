@@ -52,6 +52,7 @@ for(idx in 1:nrow(params_grid)){
   expD <- matrix(NA, ncol=nsim, nrow=end.time+1) 
   infD <- matrix(NA, ncol=nsim, nrow=end.time+1) 
   deadH <- matrix(NA, ncol=nsim, nrow=end.time+1)
+  pop <- matrix(NA, ncol=nsim, nrow=end.time+1)
   
   for(sim in 1:nsim){
     sierTL.out <- SEIR.tauleap(init = initials, pars = parameters,
@@ -64,6 +65,8 @@ for(idx in 1:nrow(params_grid)){
     expD[,sim] <- res.temp[,"E"]
     infD[,sim] <- res.temp[,"I"]
     deadH[,sim] <- pops.temp[,"Rh"]
+    pop[,sim] <- res.temp[,"S"] + res.temp[,"V1"] + res.temp[,"V2"] + res.temp[,"V3"] + 
+      res.temp[,"E"] + res.temp[,"I"] + res.temp[,"Qs"] + res.temp[,"Qer"] + res.temp[,"Qeb"] + res.temp[,"Qi"]
     rm( sierTL.out)
   }
   
