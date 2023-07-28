@@ -4,16 +4,16 @@
 ## Code: runs  SEIR.tauleap model to test intervention scenarios 
 
 rm(list=ls())
-# setwd("C:/Users/tui9/Documents/Practice code/Quarantine-Models")
 setwd("~/Documents/Rabies_Warwick/Quarantine-models")
 
 ### Libraries 
 source("R/TauLeap_SEIRfc_vacc_explicit_updated.R")
-source("R/model_params.R")
+source("R/quarantine_params.R")
+# source("R/incursion_params.R")
 
 ### Parameters and initial conditions 
 ## Simulation
-end.time <- 52*5
+end.time <- 52*10
 nsim <- 1000
 
 ## Disease
@@ -21,7 +21,7 @@ R0s <- seq(1, 2, 0.1)
 R0 <- R0s[1]
 sqcs <- 1:3 
 vc.temp <-  c(0, 0.25, 0.5, 0.75)
-vcs <- ifelse(is.infinite(-log(1-vc.temp)/53), vc.temp, -log(1-vc.temp)/53)
+vcs <- ifelse(is.infinite(-log(1-vc.temp)/53), 3/53, -log(1-vc.temp)/53)
 
 params_grid <- expand.grid(list(R0 = R0, # reproductive number
                                 sqc = sqcs, # quarantine scenarios
@@ -66,7 +66,7 @@ for(idx in 1:nrow(params_grid)){
     expD[,sim] <- res.temp[,"E"]
     infD[,sim] <- res.temp[,"I"]
     deadH[,sim] <- pops.temp[,"Rh"]
-    rm( sierTL.out)
+    rm(sierTL.out)
   }
   
   ### extract info & save
@@ -94,7 +94,7 @@ for(idx in 1:nrow(params_grid)){
 # colnames(counts) <- c("S", "V1", "V2", "V3", "E", "I", "Qs", "Qer", "Qeb", "Qi", "Rill", "Sh", "Eh",
 #                    "Ih", "Rh", "Vhs", "Vhe")
 # head(counts); tail(counts)
-# counts$E 
+# counts$E
 # 
 # ### Plot
 # # dog population
@@ -149,7 +149,7 @@ for(idx in 1:nrow(params_grid)){
 # sum(counts$Eh)
 # sum(counts$Ih)
 # sum(counts$Rh)
-# 
-# 
-# 
-# 
+
+
+
+
