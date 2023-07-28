@@ -14,7 +14,7 @@ source("R/quarantine_params.R")
 ### Parameters and initial conditions 
 ## Simulation
 end.time <- 52*10
-nsim <- 1000
+nsim <- 100
 
 ## Disease
 R0s <- seq(1, 2, 0.1) 

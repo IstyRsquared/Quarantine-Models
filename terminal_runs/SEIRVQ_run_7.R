@@ -4,24 +4,23 @@
 ## Code: runs  SEIR.tauleap model to test intervention scenarios 
 
 rm(list=ls())
-# setwd("C:/Users/tui9/Documents/Practice code/Quarantine-Models")
 setwd("~/Documents/Rabies_Warwick/Quarantine-models")
 
 ### Libraries 
 source("R/TauLeap_SEIRfc_vacc_explicit_updated.R")
-source("R/model_params.R")
+source("R/quarantine_params.R")
 
 ### Parameters and initial conditions 
 ## Simulation
-end.time <- 52*5
-nsim <- 1000
+end.time <- 52*10
+nsim <- 100
 
 ## Disease
 R0s <- seq(1, 2, 0.1) 
 R0 <- R0s[7]
 sqcs <- 1:3 
 vc.temp <-  c(0, 0.25, 0.5, 0.75)
-vcs <- ifelse(is.infinite(-log(1-vc.temp)/53), vc.temp, -log(1-vc.temp)/53)
+vcs <- ifelse(is.infinite(-log(1-vc.temp)/53), 3/53, -log(1-vc.temp)/53)
 
 params_grid <- expand.grid(list(R0 = R0, # reproductive number
                                 sqc = sqcs, # quarantine scenarios
