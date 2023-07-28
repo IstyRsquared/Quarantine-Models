@@ -75,7 +75,7 @@ for(idx in 1:nrow(params_grid)){
   print(idx)
   # print(params_grid[idx,])
   vc.t <- 1-exp(-params_grid$vc[idx]*53)
-  saveRDS(allout, paste0("output/MS_sim_runs_R0", parameters["R0"], 
+  saveRDS(allout, paste0("output/incs/MS_sim_runs_R0", parameters["R0"], 
                          "_sqc", params_grid$sqc[idx],
                          "_vc", vc.t, ".Rdata")) 
 }
