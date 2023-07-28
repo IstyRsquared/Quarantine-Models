@@ -6,7 +6,7 @@
 ## offspring cases from Negative Binomial distribution
 
 # install.packages("~/Downloads/compoisson_0.3.tar", repos = NULL, type="source")
-library(compoisson)
+library(COMPoissonReg)
 library(truncnorm)
 
 SEIR.tauleap <- function(init, pars, end.time, tau){
@@ -127,7 +127,7 @@ SEIR.tauleap <- function(init, pars, end.time, tau){
       ## 2) quarantine
       ## positive quarantine rate
       if(sum(params["q2"], params["range2"])!=0 & Vhe>0){
-        qdp <- rcom(Vhe, lambda=params["q2"], nu=params["range2"]) 
+        qdp <- rcmp(Vhe, lambda=params["q2"], nu=params["range2"]) 
       }else{
         qdp <- 0
       }
@@ -182,7 +182,7 @@ SEIR.tauleap <- function(init, pars, end.time, tau){
       
       ## false quarantine rate
       if(sum(params["q1"], params["range1"])!=0 & Vhs>0){
-        qdf <- rcom(Vhs, lambda=params["q1"], nu=params["range1"]) 
+        qdf <- rcmp(Vhs, lambda=params["q1"], nu=params["range1"]) 
       }else{
         qdf <- 0
       }

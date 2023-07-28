@@ -23,16 +23,16 @@ to_string <- as_labeller(c(`1` = supp.labs[1], `1.1` = supp.labs[2], `1.2` = sup
                            `2` = supp.labs[11]))
 
 pal <- hp(n = 10, house = "Slytherin")
-plot(1:10, 1:10, col=pal, pch=16, cex=3)
+# plot(1:10, 1:10, col=pal, pch=16, cex=3)
 colgreen <- pal[5]; collightgreen <- pal[2]
 
 pal <- hp(n=8, option = "LunaLovegood")
-plot(1:8, 1:8, col=pal, pch=16, cex=3)
+# plot(1:8, 1:8, col=pal, pch=16, cex=3)
 colpink <- pal[6]
 
 colblue <- "dodgerblue4"
-# col <- colorRampPalette(c(colgreen, colpink))(15); plot(1:15, 1:15, col=col, pch=16, cex=3)
-col <- colorRampPalette(c(colblue, colpink))(15); plot(1:15, 1:15, col=col, pch=16, cex=3)
+col <- colorRampPalette(c(colblue, colpink))(15)
+# plot(1:15, 1:15, col=col, pch=16, cex=3)
 
 # test <- filter(final_df, variable=="stability", R0=="1.5")
 # unique(test$value)
@@ -45,15 +45,17 @@ col <- colorRampPalette(c(colblue, colpink))(15); plot(1:15, 1:15, col=col, pch=
 
 ### SET UP
 theme_set(theme_bw() +
-            theme(panel.grid.major=element_blank(),
+            theme(plot.margin = unit(c(0.4, 0, 0.3, 0.1),
+                                     "inches"),
+                  panel.grid.major=element_blank(),
                   panel.grid.minor=element_blank(),
                   panel.border=element_blank(),
-                  axis.text=element_text(size=7),
-                  axis.title.x = element_text(size = 7),
-                  axis.title.y = element_text(size = 7),
+                  axis.text=element_text(size=6),
+                  axis.title.x = element_text(size = 9),
+                  axis.title.y = element_text(size = 9),
                   legend.title=element_blank(),
-                  legend.text = element_text(size = 7),
-                  text=element_text(size=7),
+                  legend.text = element_text(size = 8),
+                  text=element_text(size=10),
                   legend.key.size = unit(0.8, 'cm')))
 
 ################# STABILITY PLOTS #################
@@ -62,7 +64,9 @@ p_stability <- ggplot(data = filter(final_df, variable=="stability"), aes(vc, q,
   facet_wrap(~R0, labeller = to_string) +
   scale_fill_manual(values=c(colblue, colpink), name="", labels=c("stable", "unstable")) +
   xlab("Proportion of vaccinated dogs (vp)") + ylab("Proportion of quarantined dogs (qp)") + # labels need changing
-  theme(strip.background = element_blank())
+  theme(strip.background = element_blank(),
+        axis.title.y = element_text(vjust = +4),
+        axis.title.x = element_text(vjust = -1))
 
 stab_dat <- filter(final_df, variable=="stability")
 g1 <- p_stability %+% dplyr::filter(stab_dat, R0 == 1.3) + theme(legend.position = "none")
@@ -94,7 +98,9 @@ p_popinf <- ggplot(data = inf.dogs, aes(vc, q, fill = inc_10t)) +
   facet_wrap(~ R0, labeller = to_string) +
   xlab("Proportion of vaccinated dogs (vp)") + ylab("Proportion of quarantined dogs (qp)") +
   scale_fill_gradientn(colours=col, na.value = "gray90") +
-  theme(strip.background = element_blank()) 
+  theme(strip.background = element_blank(),
+        axis.title.y = element_text(vjust = +4),
+        axis.title.x = element_text(vjust = -1))
 
 g1 <- p_popinf %+% dplyr::filter(inf.dogs, R0 == 1.3) + theme(legend.position = "none")
 g2 <- p_popinf %+% dplyr::filter(inf.dogs, R0 != 1.3) + facet_wrap(~R0, nrow=2)
@@ -115,7 +121,9 @@ p_popexp<- ggplot(data = exp.dogs, aes(vc, q, fill = inc_10t)) +
   facet_wrap(~ R0, labeller = to_string) +
   xlab("Proportion of vaccinated dogs (vp)") + ylab("Proportion of quarantined dogs (qp)") +
   scale_fill_gradientn(colours=col, na.value = "gray90") +
-  theme(strip.background = element_blank()) 
+  theme(strip.background = element_blank(),
+        axis.title.y = element_text(vjust = +4),
+        axis.title.x = element_text(vjust = -1))
 
 g1 <- p_popexp %+% dplyr::filter(exp.dogs, R0 == 1) + theme(legend.position = "none")
 g2 <- p_popexp %+% dplyr::filter(exp.dogs, R0 != 1) + facet_wrap(~R0, nrow=2)
@@ -125,7 +133,6 @@ exposed_grid <- gridExtra::grid.arrange(g1, g2,
                                             matrix(c(1, 1, 1, 2, 2, 2, 2, 2, 2,
                                                      1, 1, 1, 2, 2, 2, 2, 2, 2),
                                                    byrow = TRUE, nrow = 2))
-                                                                                                     byrow = TRUE, nrow = 2))
 ## Bind
 # Stability_Infection_Grid <- ggpubr::ggarrange(stability_grid, infection_grid,
 #                                               ncol=1, labels=c("Stability","Infection"),
@@ -134,11 +141,11 @@ exposed_grid <- gridExtra::grid.arrange(g1, g2,
 
 Stability_InfectedPop_Grid <- ggpubr::ggarrange(stability_grid, infection_grid, exposed_grid,
                                             ncol=1, 
-                                            labels=c("A) Stability","B) Infected incidence/10,000", "C) Exposed insidence/10,000"),
+                                            labels=c("A) Stability","B) Infected incidence/10,000", "C) Exposed incidence/10,000"),
                                             hjust = -0.1,
-                                            font.label = list(size = 5))
+                                            font.label = list(size = 10))
 
-ggsave("figs/Stability_InfectedPop_Grid.png", width = 24, height = 28, units = "cm")
+ggsave("figs/Stability_InfectedPop_Grid.png", width = 22, height = 28, units = "cm")
 
 
 # ggsave("figs/Stability_Infection_Grid.png", width = 20, height = 18, units = "cm")
