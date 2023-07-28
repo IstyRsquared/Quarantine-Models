@@ -18,3 +18,5 @@ crash.log
 data/
 figs/
 test/
+terminal_runs/
+output/
