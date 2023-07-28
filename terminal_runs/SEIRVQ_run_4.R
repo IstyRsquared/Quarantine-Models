@@ -8,7 +8,7 @@ setwd("~/Documents/Rabies_Warwick/Quarantine-models")
 
 ### Libraries 
 source("R/TauLeap_SEIRfc_vacc_explicit_updated.R")
-source("R/model_params.R")
+source("R/quarantine_params.R")
 
 ### Parameters and initial conditions 
 ## Simulation
