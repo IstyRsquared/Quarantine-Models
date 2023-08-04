@@ -8,8 +8,8 @@ setwd("~/Documents/Rabies_Warwick/Quarantine-models")
 
 ### Libraries 
 source("R/TauLeap_SEIRfc_vacc_explicit_updated.R")
-source("R/quarantine_params.R")
-# source("R/incursion_params.R")
+# source("R/quarantine_params.R")
+source("R/incursion_params.R")
 
 ### Parameters and initial conditions 
 ## Simulation
@@ -78,7 +78,7 @@ for(idx in 1:nrow(params_grid)){
   print(idx)
   # print(params_grid[idx,])
   vc.t <- 1-exp(-params_grid$vc[idx]*53)
-  saveRDS(allout, paste0("output/MS_sim_runs_R0", parameters["R0"], 
+  saveRDS(allout, paste0("output/incs/MS_sim_runs_R0", parameters["R0"], 
                          "_sqc", params_grid$sqc[idx],
                          "_vc", vc.t, ".Rdata")) 
 }
