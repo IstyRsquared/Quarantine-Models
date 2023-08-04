@@ -16,7 +16,7 @@ source("R/quarantine_params.R")
 ### Parameters and initial conditions 
 ## Simulation
 end.time <- 52*10
-nsim <- 100
+nsim <- 1000
 
 ## Disease
 R0s <- seq(1, 2, 0.1) 
@@ -76,7 +76,7 @@ for(idx in 1:nrow(params_grid)){
   
   ### extract info & save
   # allout[[idx]] <- list(deadD=deadD, expD=expD, infD=infD, deadH=deadH)
-  allout <- list(deadD=deadD, expD=expD, infD=infD, deadH=deadH)
+  allout <- list(deadD=deadD, expD=expD, infD=infD, deadH=deadH, pop=pop)
   print(idx)
   # print(params_grid[idx,])
   vc.t <- 1-exp(-params_grid$vc[idx]*53)
