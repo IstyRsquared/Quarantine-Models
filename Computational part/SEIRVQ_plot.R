@@ -14,7 +14,7 @@ library(tidyverse)
 
 ## Params set up
 end.time <- 52*10
-nsim <- 100
+nsim <- 1000
 
 R0s <- seq(1, 2, 0.1)
 sqcs <- 1:3
@@ -50,22 +50,25 @@ for(idx in 1:nrow(params_grid)){
   final_frame_box <- rbind(final_frame_box, 
                        data.frame(R0=params_grid$R0[idx], Quarantine=params_grid$sqc[idx], Vaccination=params_grid$vc[idx],
                                   deadD=as.vector(t(sum_mthly[[1]])), expD=as.vector(t(sum_mthly[[2]])), 
-                                  infD=as.vector(t(sum_mthly[[3]])), deadH=as.vector(t(sum_mthly[[4]]), 
-                                  pop=as.vector(t(sum_mthly[[5]])))))
+                                  infD=as.vector(t(sum_mthly[[3]])), deadH=as.vector(t(sum_mthly[[4]])), 
+                                  pop=as.vector(t(sum_mthly[[5]]))))
+  
   
   # without burn-in
   deadD_df <- t(sum_mthly[[1]])
   expD_df <- t(sum_mthly[[2]])
   infD_df <- t(sum_mthly[[3]])
   deadH_df <- t(sum_mthly[[4]])
+  pop_df <- t(sum_mthly[[5]])
   final_frame_box_burnout <- rbind(final_frame_box_burnout, 
                                    data.frame(R0=params_grid$R0[idx], Quarantine=params_grid$sqc[idx], Vaccination=params_grid$vc[idx],
                                               deadD=as.vector(deadD_df[,7:60]), expD=as.vector(expD_df[,7:60]), 
-                                              infD=as.vector(infD_df[,7:60]), deadH=as.vector(deadH_df[,7:60])))
+                                              infD=as.vector(infD_df[,7:60]), deadH=as.vector(deadH_df[,7:60]), 
+                                              pop=as.vector(pop_df[,7:60])))
   
   ### Time series figs (average over sims)
   stats_mthly <- vector("list", length(sum_mthly))
-  names(stats_mthly) <- list("deadD", "expD", "infD", "deadH")
+  names(stats_mthly) <- list("deadD", "expD", "infD", "deadH", "pop")
   
   for(i in 1:length(sum_mthly)){
     df.temp <- data.frame(sum_mthly[[i]])
@@ -82,12 +85,13 @@ for(idx in 1:nrow(params_grid)){
 }
 
 # saveRDS(final_list_ts, "output/MS_monthly_infection_ts_10yrs.Rdata") 
-# write.csv(final_frame_box, "output/MS_monthly_infection_boxplot.csv", row.names=F) 
-write.csv(final_frame_box_burnout, "output/MS_monthly_infection_boxplot_burnout_10yrs.csv", row.names=F) 
+# final_frame_box$pop[which(is.na(final_frame_box$pop))] <- 200000
+# write.csv(final_frame_box, "output/MS_monthly_infection_boxplot_10yrs.csv", row.names=F) 
+# write.csv(final_frame_box_burnout, "output/MS_monthly_infection_boxplot_burnout_10yrs.csv", row.names=F) 
 
 #################################################################################################################################################
 ### TIME SERIES (of dead dogs and humans)
-final_list_ts <- readRDS("output/MS_monthly_infection_ts.Rdata") 
+# final_list_ts <- readRDS("output/MS_monthly_infection_ts.Rdata") 
 
 # ## colours
 # pal <- hp(n = 10, house = "Slytherin")
@@ -245,17 +249,29 @@ plot(1:4, 1:4, col=q4, pch=16, cex=3)
 mygray <- alpha("gray", 0.1)
 
 ## Set up theme
+# theme_set(theme_bw() +
+#             theme(panel.grid.major=element_blank(),
+#                   panel.grid.minor=element_blank(),
+#                   panel.border=element_blank(),
+#                   axis.text=element_text(size=5),
+#                   axis.title.x = element_text(size = 5),
+#                   axis.title.y = element_text(size = 5),
+#                   # legend.title=element_blank(),
+#                   legend.text = element_text(size = 4),
+#                   text=element_text(size=5),
+#                   legend.key.size = unit(0.3, 'cm')))
+
 theme_set(theme_bw() +
             theme(panel.grid.major=element_blank(),
                   panel.grid.minor=element_blank(),
                   panel.border=element_blank(),
-                  axis.text=element_text(size=5),
-                  axis.title.x = element_text(size = 5),
-                  axis.title.y = element_text(size = 5),
+                  axis.text=element_text(size=6),
+                  axis.title.x = element_text(size = 9),
+                  axis.title.y = element_text(size = 9),
                   # legend.title=element_blank(),
-                  legend.text = element_text(size = 4),
-                  text=element_text(size=5),
-                  legend.key.size = unit(0.3, 'cm')))
+                  legend.text = element_text(size = 8),
+                  text=element_text(size=9),
+                  legend.key.size = unit(0.8, 'cm')))
 
 # data <- data.frame(team=rep(c('A', 'B', 'C'), each=50),
 #                    program=rep(c('low', 'high'), each=25),
@@ -277,6 +293,7 @@ final_frame_box <- tibble(final_frame_box) %>%
   mutate(Quarantine = as.factor(Quarantine))
 
 ## DOGS
+### HERE: chnage no. of dogs to incidence!
 # test <- filter(final_frame_box, R0==1.3)
 # ggplot(test, aes(x=Quarantine, y=expD+infD, fill=Vaccination)) +
 #   geom_boxplot()
