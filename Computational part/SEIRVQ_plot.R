@@ -238,14 +238,13 @@ dev.off()
 
 
 #################################################################################################################################################
-### BOXPLOT (of exposed and infectious dogs)
-# final_frame_box <- read.csv("output/MS_monthly_infection_boxplot.csv")
-final_frame_box <- read.csv("output/MS_monthly_infection_boxplot_burnout.csv") 
+### BOXPLOT 1: Exposed and Infectious dogs
+final_frame_box <- read.csv("output/MS_monthly_infection_boxplot_burnout_10yrs.csv") 
 head(final_frame_box)
 
 ## colours
 q4 <- sequential_hcl(4, "PuBuGn")
-plot(1:4, 1:4, col=q4, pch=16, cex=3)
+# plot(1:4, 1:4, col=q4, pch=16, cex=3)
 mygray <- alpha("gray", 0.1)
 
 ## Set up theme
@@ -260,6 +259,12 @@ mygray <- alpha("gray", 0.1)
 #                   legend.text = element_text(size = 4),
 #                   text=element_text(size=5),
 #                   legend.key.size = unit(0.3, 'cm')))
+# data <- data.frame(team=rep(c('A', 'B', 'C'), each=50),
+#                    program=rep(c('low', 'high'), each=25),
+#                    values=seq(1:150)+sample(1:100, 150, replace=TRUE))
+# tibble(data)
+# ggplot(data, aes(x=team, y=values, fill=program)) +
+#   geom_boxplot()
 
 theme_set(theme_bw() +
             theme(panel.grid.major=element_blank(),
@@ -273,13 +278,6 @@ theme_set(theme_bw() +
                   text=element_text(size=9),
                   legend.key.size = unit(0.8, 'cm')))
 
-# data <- data.frame(team=rep(c('A', 'B', 'C'), each=50),
-#                    program=rep(c('low', 'high'), each=25),
-#                    values=seq(1:150)+sample(1:100, 150, replace=TRUE))
-# tibble(data)
-# ggplot(data, aes(x=team, y=values, fill=program)) +
-#   geom_boxplot()
-
 # labs
 supp.labs <- paste("R0 =", unique(final_frame_box$R0))
 to_string <- as_labeller(c(`1` = supp.labs[1], `1.1` = supp.labs[2], `1.2` = supp.labs[3], `1.3` = supp.labs[4], `1.4` = supp.labs[5],
@@ -292,11 +290,6 @@ final_frame_box <- tibble(final_frame_box) %>%
   mutate(Vaccination = as.factor(Vaccination)) %>%
   mutate(Quarantine = as.factor(Quarantine))
 
-## DOGS
-### HERE: chnage no. of dogs to incidence!
-# test <- filter(final_frame_box, R0==1.3)
-# ggplot(test, aes(x=Quarantine, y=expD+infD, fill=Vaccination)) +
-#   geom_boxplot()
 p_box <- ggplot(data = final_frame_box, aes(x=Quarantine, y=expD+infD, fill=Vaccination)) +
   geom_boxplot(outlier.size = 0.05, lwd=0.1, outlier.color=mygray) +
   # geom_boxplot(outlier.shape = NA) +
@@ -314,8 +307,32 @@ Infection_CompGrid <- gridExtra::grid.arrange(g1, g2,
                                                      1, 1, 1, 2, 2, 2, 2, 2, 2),
                                                    byrow = TRUE, nrow = 2))
 
+ggsave("figs/InfectionBurninout_CompGrid.png", plot=Infection_CompGrid, width = 20, height = 9, units = "cm")
+
+### BOXPLOT 2: Incidence per 100,000
+### HERE: chnage no. of dogs to incidence!
+## Draw plot
+
+p_box <- ggplot(data = final_frame_box, aes(x=Quarantine, y=expD+infD/pop*100000, fill=Vaccination)) +
+  geom_boxplot(outlier.size = 0.05, lwd=0.1, outlier.color=mygray) +
+  # geom_boxplot(outlier.shape = NA) +
+  facet_wrap(~R0, labeller = to_string, scales="free") +
+  scale_fill_manual(name="Vaccination", values=c(q4), labels=c("0%", "25%", "50%", "75%")) + 
+  ylab("Monthly no. of infected dogs (E+I)") + xlab("Quarantine scenario") +
+  theme(strip.background = element_blank())
+
+g1 <- p_box %+% dplyr::filter(final_frame_box, R0 == 1.3) + theme(legend.position = "none")
+g2 <- p_box %+% dplyr::filter(final_frame_box, R0 != 1.3) + facet_wrap(~R0, nrow=2, scales="free")
+
+Infection_CompGrid <- gridExtra::grid.arrange(g1, g2,
+                                              layout_matrix = 
+                                                matrix(c(1, 1, 1, 2, 2, 2, 2, 2, 2,
+                                                         1, 1, 1, 2, 2, 2, 2, 2, 2),
+                                                       byrow = TRUE, nrow = 2))
+
 # ggsave("figs/Infection_CompGrid.png", plot=Infection_CompGrid, width = 20, height = 9, units = "cm")
 ggsave("figs/InfectionBurninout_CompGrid.png", plot=Infection_CompGrid, width = 20, height = 9, units = "cm")
+
 
 
 
