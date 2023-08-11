@@ -1,7 +1,7 @@
 ## Quarantine model 
 ## Name: Isty Rysava
 ## Date: 18/11/2022
-## Code: Reads in simulation outputs draws boxplot of monthly infection 
+## Code: Reads in simulation outputs and draws boxplot of monthly infection 
 
 rm(list=ls())
 setwd("~/Documents/Rabies_Warwick/Quarantine-models")
