@@ -34,15 +34,6 @@ colblue <- "dodgerblue4"
 col <- colorRampPalette(c(colblue, colpink))(15)
 # plot(1:15, 1:15, col=col, pch=16, cex=3)
 
-# test <- filter(final_df, variable=="stability", R0=="1.5")
-# unique(test$value)
-# ggplot(test, aes( x=vc, y=q, fill = value)) +
-#   geom_raster()
-# y=unique(test$q)
-# x=unique(test$vc)
-# z=matrix(test$value, ncol=length(y), nrow=length(x))
-# image(x=x, y=y, z=z, xlab="qP", ylab="vcP", col=col, main="Stability", cex.axis=.6, cex.main=.75, cex.lab=.7)
-
 ### SET UP
 theme_set(theme_bw() +
             theme(plot.margin = unit(c(0.4, 0, 0.3, 0.1),
@@ -58,7 +49,7 @@ theme_set(theme_bw() +
                   text=element_text(size=10),
                   legend.key.size = unit(0.8, 'cm')))
 
-################# STABILITY PLOTS #################
+################# STABILITY PLOT #################
 p_stability <- ggplot(data = filter(final_df, variable=="stability"), aes(vc, q, fill = as.factor(value))) +
   geom_raster() +
   facet_wrap(~R0, labeller = to_string) +
@@ -77,7 +68,7 @@ stability_grid <- gridExtra::grid.arrange(g1, g2,
                           matrix(c(1, 1, 1, 2, 2, 2, 2, 2, 2,
                                    1, 1, 1, 2, 2, 2, 2, 2, 2),
                                  byrow = TRUE, nrow = 2))
-
+# # alterantive layout
 # stability_grid <- gridExtra::grid.arrange(g1, g2,
 #                                           layout_matrix = 
 #                                             matrix(c(1, 1, 1, NA, NA, NA, NA, NA, NA,
@@ -87,11 +78,11 @@ stability_grid <- gridExtra::grid.arrange(g1, g2,
 #                                                    byrow = TRUE, nrow = 4))
 
 ################# INFECTION PLOTS #################
-### A) Infected dogs
+### A) Infected incidence
 inf_dat <- filter(final_df, variable=="infected")
 inf.dogs <- tibble(inf_dat)%>%
   mutate(value=ifelse(value<0, NA, value)) # for unstable NA, rest by number!
-inf.dogs$inc_10t <- inf.dogs$value/filter(final_df, variable=="pop")$value*10000
+inf.dogs$inc_10t <- inf.dogs$value/filter(final_df, variable=="pop")$value*10000 # calculate incidence per 10,000
 
 p_popinf <- ggplot(data = inf.dogs, aes(vc, q, fill = inc_10t)) +
   geom_raster() +
@@ -110,11 +101,11 @@ infection_grid <- gridExtra::grid.arrange(g1, g2,
                                             matrix(c(1, 1, 1, 2, 2, 2, 2, 2, 2,
                                                      1, 1, 1, 2, 2, 2, 2, 2, 2),
                                                    byrow = TRUE, nrow = 2))
-### B) Exposed dogs
+### B) Exposed incidence
 exp_dat <- filter(final_df, variable=="exposed")
 exp.dogs <- tibble(exp_dat)%>%
   mutate(value=ifelse(value<0, NA, value)) # for unstable NA, rest by number!
-exp.dogs$inc_10t <- exp.dogs$value/filter(final_df, variable=="pop")$value*10000
+exp.dogs$inc_10t <- exp.dogs$value/filter(final_df, variable=="pop")$value*10000 # calculate incidence per 10,000
 
 p_popexp<- ggplot(data = exp.dogs, aes(vc, q, fill = inc_10t)) +
   geom_raster() +
@@ -138,7 +129,6 @@ exposed_grid <- gridExtra::grid.arrange(g1, g2,
 #                                               ncol=1, labels=c("Stability","Infection"),
 #                                               hjust = -0.1,
 #                                               font.label = list(size = 5))
-
 Stability_InfectedPop_Grid <- ggpubr::ggarrange(stability_grid, infection_grid, exposed_grid,
                                             ncol=1, 
                                             labels=c("A) Stability","B) Infected incidence/10,000", "C) Exposed incidence/10,000"),
@@ -147,6 +137,4 @@ Stability_InfectedPop_Grid <- ggpubr::ggarrange(stability_grid, infection_grid, 
 
 ggsave("figs/Stability_InfectedPop_Grid.png", width = 22, height = 28, units = "cm")
 
-
-# ggsave("figs/Stability_Infection_Grid.png", width = 20, height = 18, units = "cm")
 
