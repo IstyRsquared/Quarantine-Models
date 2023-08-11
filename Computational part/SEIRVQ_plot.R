@@ -89,7 +89,7 @@ for(idx in 1:nrow(params_grid)){
 # write.csv(final_frame_box_burnout, "output/MS_monthly_infection_boxplot_burnout_10yrs.csv", row.names=F) 
 
 #################################################################################################################################################
-### BOXPLOT 1: Exposed and Infectious dogs
+### BOXPLOT 1: Exposed and Infectious dogs per quarantine scenario
 final_frame_box <- read.csv("output/MS_monthly_infection_boxplot_burnout_10yrs.csv") 
 head(final_frame_box)
 
@@ -142,7 +142,8 @@ Infection_CompGrid <- gridExtra::grid.arrange(g1, g2,
 
 ggsave("figs/InfectionBurninout_CompGrid.png", plot=Infection_CompGrid, width = 20, height = 9, units = "cm")
 
-### BOXPLOT 2: Incidence per 100,000
+#################################################################################################################################################
+### BOXPLOT 2: Incidence per 100,000 per quarantine scenario
 ## Draw plot
 p_box <- ggplot(data = final_frame_box, aes(x=Quarantine, y=expD+infD/pop*10000, fill=Vaccination)) +
   geom_boxplot(outlier.size = 0.05, lwd=0.1, outlier.color=mygray) +
@@ -164,6 +165,58 @@ Infection_CompGrid <- gridExtra::grid.arrange(g1, g2,
 # ggsave("figs/Infection_CompGrid.png", plot=Infection_CompGrid, width = 20, height = 9, units = "cm")
 ggsave("figs/IncidenceBurninout_CompGrid.png", plot=Infection_CompGrid, width = 20, height = 9, units = "cm")
 
+#################################################################################################################################################
+### BOXPLOT 3: Incidence per 100,000 per incursion scenario
+final_frame_box <- read.csv("output/incs/MS_monthly_infection_boxplotinc_burnout_10yrs.csv") 
+head(final_frame_box)
+
+## colours
+q4 <- sequential_hcl(4, "PuBuGn")
+mygray <- alpha("gray", 0.1)
+## Set up theme
+theme_set(theme_bw() +
+            theme(panel.grid.major=element_blank(),
+                  panel.grid.minor=element_blank(),
+                  panel.border=element_blank(),
+                  axis.text=element_text(size=6),
+                  axis.title.x = element_text(size = 9),
+                  axis.title.y = element_text(size = 9),
+                  # legend.title=element_blank(),
+                  legend.text = element_text(size = 8),
+                  text=element_text(size=9),
+                  legend.key.size = unit(0.8, 'cm')))
+
+# labs
+supp.labs <- paste("R0 =", unique(final_frame_box$R0))
+to_string <- as_labeller(c(`1` = supp.labs[1], `1.1` = supp.labs[2], `1.2` = supp.labs[3], `1.3` = supp.labs[4], `1.4` = supp.labs[5],
+                           `1.5` = supp.labs[6], `1.6` = supp.labs[7], `1.7` = supp.labs[8], `1.8` = supp.labs[9], `1.9` = supp.labs[10], 
+                           `2` = supp.labs[11]))
+## Draw plot
+tibble(final_frame_box)
+final_frame_box <- tibble(final_frame_box) %>%
+  mutate(R0 = as.factor(R0)) %>%
+  mutate(Vaccination = as.factor(Vaccination)) %>%
+  mutate(Incursion = as.factor(Incursion))
+
+## Draw plot
+p_box <- ggplot(data = final_frame_box, aes(x=Incursion, y=expD+infD/pop*10000, fill=Vaccination)) +
+  geom_boxplot(outlier.size = 0.05, lwd=0.1, outlier.color=mygray) +
+  # geom_boxplot(outlier.shape = NA) +
+  facet_wrap(~R0, labeller = to_string, scales="free") +
+  scale_fill_manual(name="Vaccination", values=c(q4), labels=c("0%", "25%", "50%", "75%")) + 
+  ylab("Monthly incidence of infected dogs (E+I) / 10,000") + xlab("Incursion scenario") +
+  theme(strip.background = element_blank())
+
+g1 <- p_box %+% dplyr::filter(final_frame_box, R0 == 1.3) + theme(legend.position = "none")
+g2 <- p_box %+% dplyr::filter(final_frame_box, R0 != 1.3) + facet_wrap(~R0, nrow=2, scales="free")
+
+Incursion_CompGrid <- gridExtra::grid.arrange(g1, g2,
+                                              layout_matrix = 
+                                                matrix(c(1, 1, 1, 2, 2, 2, 2, 2, 2,
+                                                         1, 1, 1, 2, 2, 2, 2, 2, 2),
+                                                       byrow = TRUE, nrow = 2))
+
+ggsave("figs/IncursionBurninout_CompGrid.png", plot=Incursion_CompGrid, width = 20, height = 9, units = "cm")
 
 
 

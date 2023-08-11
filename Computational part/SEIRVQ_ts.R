@@ -11,10 +11,85 @@ library(harrypotter)
 library(colorspace)
 library(tidyverse)
 
-## Data
-final_list_ts <- readRDS("output/MS_monthly_infection_ts.Rdata") 
+## Params set up
+end.time <- 52*10
+nsim <- 1000
 
-### TIME SERIES (of dead dogs and humans)
+R0s <- seq(1, 2, 0.1)
+sqcs <- 1:3 # 1=0, 2=1.5, 3=3
+vc.temp <-  c(0, 0.25, 0.5, 0.75)
+params_grid <- expand.grid(list(R0 = R0s, # reproductive number
+                                sqc = sqcs, # incursion scenarios
+                                vc = vc.temp)) # vaccination scenarios
+
+final_frame_box <- c()
+final_frame_box_burnout <- c() # remove burn-in period (1st 6 months)
+final_list_ts <- vector("list", length=nrow(params_grid))
+
+weeks <- seq(as.Date("2018-01-01"), as.Date("2027-12-31"), by="week")[2:522]
+months <- ((as.POSIXlt(strptime(weeks, format="%Y-%m-%d"))$year-118)*12) + as.POSIXlt(strptime(weeks, format="%Y-%m-%d"))$mon+1
+
+for(idx in 1:nrow(params_grid)){
+  R0 <- params_grid[idx,][1]
+  sqc <- params_grid[idx,][2]
+  vac <- params_grid[idx,][3]
+  my.files <- readRDS(paste0("output/incs/MS_sim_runs_R0", R0, "_sqc", sqc, "_vc", vac, ".Rdata"))
+  
+  ## Aggregate by month 
+  sum_mthly <- vector("list", length(my.files))
+  names(my.files) <- names(sum_mthly) <- list("deadD", "expD", "infD", "deadH", "pop")
+  
+  for(i in 1: length(my.files)){
+    df.temp <- data.frame(my.files[[i]])
+    sum_mthly[[i]] <- rowsum(df.temp, group=months)
+  }
+  
+  ### Boxplot figs (keep as is)
+  # with burn-in
+  final_frame_box <- rbind(final_frame_box, 
+                           data.frame(R0=params_grid$R0[idx], Quarantine=params_grid$sqc[idx], Vaccination=params_grid$vc[idx],
+                                      deadD=as.vector(t(sum_mthly[[1]])), expD=as.vector(t(sum_mthly[[2]])), 
+                                      infD=as.vector(t(sum_mthly[[3]])), deadH=as.vector(t(sum_mthly[[4]])), 
+                                      pop=as.vector(t(sum_mthly[[5]]))))
+  
+  
+  # without burn-in
+  deadD_df <- t(sum_mthly[[1]])
+  expD_df <- t(sum_mthly[[2]])
+  infD_df <- t(sum_mthly[[3]])
+  deadH_df <- t(sum_mthly[[4]])
+  pop_df <- t(sum_mthly[[5]])
+  final_frame_box_burnout <- rbind(final_frame_box_burnout, 
+                                   data.frame(R0=params_grid$R0[idx], Quarantine=params_grid$sqc[idx], Vaccination=params_grid$vc[idx],
+                                              deadD=as.vector(deadD_df[,7:60]), expD=as.vector(expD_df[,7:60]), 
+                                              infD=as.vector(infD_df[,7:60]), deadH=as.vector(deadH_df[,7:60]), 
+                                              pop=as.vector(pop_df[,7:60])))
+  
+  ### Time series figs (average over sims)
+  stats_mthly <- vector("list", length(sum_mthly))
+  names(stats_mthly) <- list("deadD", "expD", "infD", "deadH", "pop")
+  
+  for(i in 1:length(sum_mthly)){
+    df.temp <- data.frame(sum_mthly[[i]])
+    monthly_stats <- data.frame(mean=as.numeric(rowMeans(df.temp)))
+    for(j in 1:nrow(monthly_stats)){
+      monthly_stats$upperPI[j] <- as.numeric(as.character(sort(as.numeric(df.temp[j,]))[round(0.975*nsim)]))
+      monthly_stats$lowerPI[j] <- as.numeric(as.character(sort(as.numeric(df.temp[j,]))[round(0.275*nsim)]))
+    }
+    stats_mthly[[i]] <- monthly_stats
+  }
+  
+  final_list_ts[[idx]] <- stats_mthly
+  print(idx)
+}
+
+# saveRDS(final_list_ts, "output/incs/MS_monthly_infection_tsinc_10yrs.Rdata")
+# colnames(final_frame_box)[2] <- "Incursion"
+# write.csv(final_frame_box_burnout, "output/incs/MS_monthly_infection_boxplotinc_burnout_10yrs.csv", row.names=F) 
+
+#################################################################################################################################################
+### TIME SERIES 1:  dead dogs 
+final_list_ts <- readRDS("output/MS_monthly_infection_ts.Rdata")  
 
 # ## colours
 # pal <- hp(n = 10, house = "Slytherin")
@@ -159,3 +234,4 @@ for(idx in 1:length(vacs)){
 }
 dev.off()
 
+### TIME SERIES 2:  dead humans 
