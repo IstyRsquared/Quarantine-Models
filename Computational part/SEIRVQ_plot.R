@@ -103,11 +103,11 @@ theme_set(theme_bw() +
             theme(panel.grid.major=element_blank(),
                   panel.grid.minor=element_blank(),
                   panel.border=element_blank(),
-                  axis.text=element_text(size=6),
-                  axis.title.x = element_text(size = 9),
-                  axis.title.y = element_text(size = 9),
+                  axis.text=element_text(size=7),
+                  axis.title.x = element_text(size = 10),
+                  axis.title.y = element_text(size = 10),
                   # legend.title=element_blank(),
-                  legend.text = element_text(size = 8),
+                  legend.text = element_text(size = 9),
                   text=element_text(size=9),
                   legend.key.size = unit(0.8, 'cm')))
 
@@ -145,7 +145,7 @@ ggsave("figs/InfectionBurninout_CompGrid.png", plot=Infection_CompGrid, width = 
 #################################################################################################################################################
 ### BOXPLOT 2: Incidence per 100,000 per quarantine scenario
 ## Draw plot
-p_box <- ggplot(data = final_frame_box, aes(x=Quarantine, y=expD+infD/pop*10000, fill=Vaccination)) +
+p_box <- ggplot(data = final_frame_box, aes(x=Quarantine, y=(expD+infD)/pop*10000, fill=Vaccination)) +
   geom_boxplot(outlier.size = 0.05, lwd=0.1, outlier.color=mygray) +
   # geom_boxplot(outlier.shape = NA) +
   facet_wrap(~R0, labeller = to_string, scales="free") +
@@ -178,9 +178,8 @@ final_frame_box <- tibble(final_frame_box) %>%
   mutate(Incursion = as.factor(Incursion))
 
 ## Draw plot
-p_box <- ggplot(data = final_frame_box, aes(x=Incursion, y=expD+infD/pop*10000, fill=Vaccination)) +
+p_box <- ggplot(data = final_frame_box, aes(x=Incursion, y=(expD+infD)/pop*10000, fill=Vaccination)) +
   geom_boxplot(outlier.size = 0.05, lwd=0.1, outlier.color=mygray) +
-  # geom_boxplot(outlier.shape = NA) +
   facet_wrap(~R0, labeller = to_string, scales="free") +
   scale_fill_manual(name="Vaccination", values=c(q4), labels=c("0%", "25%", "50%", "75%")) + 
   ylab("Monthly incidence of infected dogs (E+I) / 10,000") + xlab("Incursion scenario") +
