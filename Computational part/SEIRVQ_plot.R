@@ -170,27 +170,6 @@ ggsave("figs/IncidenceBurninout_CompGrid.png", plot=Infection_CompGrid, width = 
 final_frame_box <- read.csv("output/incs/MS_monthly_infection_boxplotinc_burnout_10yrs.csv") 
 head(final_frame_box)
 
-## colours
-q4 <- sequential_hcl(4, "PuBuGn")
-mygray <- alpha("gray", 0.1)
-## Set up theme
-theme_set(theme_bw() +
-            theme(panel.grid.major=element_blank(),
-                  panel.grid.minor=element_blank(),
-                  panel.border=element_blank(),
-                  axis.text=element_text(size=6),
-                  axis.title.x = element_text(size = 9),
-                  axis.title.y = element_text(size = 9),
-                  # legend.title=element_blank(),
-                  legend.text = element_text(size = 8),
-                  text=element_text(size=9),
-                  legend.key.size = unit(0.8, 'cm')))
-
-# labs
-supp.labs <- paste("R0 =", unique(final_frame_box$R0))
-to_string <- as_labeller(c(`1` = supp.labs[1], `1.1` = supp.labs[2], `1.2` = supp.labs[3], `1.3` = supp.labs[4], `1.4` = supp.labs[5],
-                           `1.5` = supp.labs[6], `1.6` = supp.labs[7], `1.7` = supp.labs[8], `1.8` = supp.labs[9], `1.9` = supp.labs[10], 
-                           `2` = supp.labs[11]))
 ## Draw plot
 tibble(final_frame_box)
 final_frame_box <- tibble(final_frame_box) %>%
