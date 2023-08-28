@@ -151,7 +151,7 @@ for(idx in 1:length(vacs)){
 dev.off()
 
 #################################################################################################################################################
-### TIME SERIES 2: incidence per 100,000 across incursion rates
+### TIME SERIES 2: canine case incidence per 100,000 across incursion rates
 final_list_ts <- readRDS("output/incs/MS_monthly_infection_tsinc_10yrs.Rdata")  
 
 path <- paste0("figs/ts/MS_sim_runs_R0", R0, "_sqcall_vcall_INCSincidence.pdf")

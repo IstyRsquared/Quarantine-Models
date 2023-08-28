@@ -1,6 +1,6 @@
 ## Quarantine model 
 ## Name: Isty Rysava
-## Date: 08/02/18
+## Date: 08/02/2023
 ## Code: an example script to SEIR.tauleap model (NB) to test intervention scenarios for R0=1
 
 rm(list=ls())
