@@ -10,7 +10,6 @@ setwd("~/Documents/Rabies_Warwick/Quarantine-models")
 library(harrypotter)
 library(tidyverse)
 library(gridExtra)
-# library("ggpubr")
 
 ## Data
 final_df <- read.csv("output/SEIRVQrabies_EndemicEquilibrium.csv")
@@ -54,7 +53,7 @@ p_stability <- ggplot(data = filter(final_df, variable=="stability"), aes(vc, q,
   geom_raster() +
   facet_wrap(~R0, labeller = to_string) +
   scale_fill_manual(values=c(colblue, colpink), name="", labels=c("stable", "unstable")) +
-  xlab("Proportion of vaccinated dogs (vp)") + ylab("Proportion of quarantined dogs (qp)") + # labels need changing
+  xlab("Proportion of vaccinated dogs (vp)") + ylab("Proportion of quarantined dogs (qp)") + 
   theme(strip.background = element_blank(),
         axis.title.y = element_text(vjust = +4),
         axis.title.x = element_text(vjust = -1))
@@ -125,10 +124,6 @@ exposed_grid <- gridExtra::grid.arrange(g1, g2,
                                                      1, 1, 1, 2, 2, 2, 2, 2, 2),
                                                    byrow = TRUE, nrow = 2))
 ## Bind
-# Stability_Infection_Grid <- ggpubr::ggarrange(stability_grid, infection_grid,
-#                                               ncol=1, labels=c("Stability","Infection"),
-#                                               hjust = -0.1,
-#                                               font.label = list(size = 5))
 Stability_InfectedPop_Grid <- ggpubr::ggarrange(stability_grid, infection_grid, exposed_grid,
                                             ncol=1, 
                                             labels=c("A) Stability","B) Infected incidence/10,000", "C) Exposed incidence/10,000"),
