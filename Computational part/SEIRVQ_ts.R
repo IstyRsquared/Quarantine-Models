@@ -103,7 +103,7 @@ vacs <- c(0, 0.25, 0.5, 0.75)
 
 final_list_ts <- readRDS("output/incs/MS_monthly_infection_tsinc_10yrs.Rdata")  
 
-path <- "figs/ts/MS_sim_runs_R01.3_sqcall_vcall_INCS.pdf"
+path <- paste0("figs/ts/MS_sim_runs_R0", R0, "_sqcall_vcall_INCS.pdf")
 mains <- c("A/", "B/", "C/", "D/")
 borderq4 <- c(alpha(q4[1:2], 0.1), alpha(q4[3], 0.3), alpha(q4[4], 0.3))
 pdf(path, width=8, height=6)
@@ -114,6 +114,8 @@ for(idx in 1:length(vacs)){
   
   for(i in 1:length(sqcs)){
     ind <- which(paste(R0, sqcs[i], vacc)==paste(params_grid$R0, params_grid$sqc, params_grid$vc))
+    max.temp <- final_list_ts[[which(paste(R0, sqcs[3], vacc)==paste(params_grid$R0, params_grid$sqc, params_grid$vc))]]
+    max <- ceiling(max(max.temp[[1]]$upperPI/max.temp[[5]]$upperPI*10000, na.rm=T))
     
     stats_mthly <- final_list_ts[[ind]]
     dogs <- stats_mthly[[1]]
@@ -123,7 +125,7 @@ for(idx in 1:length(vacs)){
     
     if(i==1){
       x<-1:nrow(dogs)
-      plot(dogs$mean/pop$mean*10000~x,type="l", ylab="", xlab="", axes=F, ylim=c(0, 1), xaxt="n", bty="n")
+      plot(dogs$mean/pop$mean*10000~x,type="l", ylab="", xlab="", axes=F, ylim=c(0, max), xaxt="n", bty="n")
       title(xlab = "Time", line = 2, cex.lab=.8)     
       title(mains[idx], adj = 0, line = 1, cex.main=.8)
       title(ylab = "Monthly incidence of dead dogs / 10,000", line = 2, cex.lab=.9)   
@@ -152,7 +154,7 @@ dev.off()
 ### TIME SERIES 2: incidence per 100,000 across incursion rates
 final_list_ts <- readRDS("output/incs/MS_monthly_infection_tsinc_10yrs.Rdata")  
 
-path <- "figs/ts/MS_sim_runs_R01.3_sqcall_vcall_INCSincidence.pdf"
+path <- paste0("figs/ts/MS_sim_runs_R0", R0, "_sqcall_vcall_INCSincidence.pdf")
 mains <- c("A/", "B/", "C/", "D/")
 borderq4 <- c(alpha(q4[1:2], 0.1), alpha(q4[3], 0.3), alpha(q4[4], 0.3))
 pdf(path, width=8, height=6)
@@ -163,6 +165,8 @@ for(idx in 1:length(vacs)){
   
   for(i in 1:length(sqcs)){
     ind <- which(paste(R0, sqcs[i], vacc)==paste(params_grid$R0, params_grid$sqc, params_grid$vc))
+    max.temp <- final_list_ts[[which(paste(R0, sqcs[3], vacc)==paste(params_grid$R0, params_grid$sqc, params_grid$vc))]]
+    max <- ceiling(max((max.temp[[2]]$upperPI+max.temp[[3]]$upperPI)/max.temp[[5]]$upperPI*10000, na.rm=T))
     
     stats_mthly <- final_list_ts[[ind]]
     Edogs <- stats_mthly[[2]]; Edogs <- Edogs[(7:120),]
@@ -172,7 +176,7 @@ for(idx in 1:length(vacs)){
     
     if(i==1){
       x<-1:nrow(dogs)
-      plot(dogs$mean/pop$mean*10000~x,type="l", ylab="", xlab="", axes=F, ylim=c(0, 3), xaxt="n", bty="n")
+      plot(dogs$mean/pop$mean*10000~x,type="l", ylab="", xlab="", axes=F, ylim=c(0, max), xaxt="n", bty="n")
       title(xlab = "Time", line = 2, cex.lab=.8)     
       title(mains[idx], adj = 0, line = 1, cex.main=.8)
       title(ylab = "Monthly incidence of infected dogs (E+I) / 10,000", line = 2, cex.lab=.9)   
