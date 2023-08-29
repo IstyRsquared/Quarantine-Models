@@ -18,8 +18,8 @@ R0s <- seq(1, 2, 0.1)
 
 #################################################################################################################################################
 ### Get the statistics
-statD_res <- matrix(NA, nrow=length(R0s), ncol=7)
-statH_res <- matrix(NA, nrow=length(R0s), ncol=7)
+statD_res <- matrix(NA, nrow=length(R0s), ncol=8)
+statH_res <- matrix(NA, nrow=length(R0s), ncol=8)
 statD_res[,1] <- statH_res[,1] <- R0s
 
 for(idx in 1:length(R0s)){
@@ -28,30 +28,30 @@ for(idx in 1:length(R0s)){
   Rsubset$allinfD <- Rsubset$expD + Rsubset$infD 
   
   # run model for dogs & get sig and ests
-  mod1 <- glm.nb(deadD ~ Vaccination + as.factor(Quarantine), Rsubset, na.action=na.exclude, maxit=1000, link=log)
+  mod1 <- glm.nb(allinfD ~ Vaccination + as.factor(Quarantine), Rsubset, na.action=na.exclude, maxit=1000, link=log)
   statD_res[idx,2:4] <- as.numeric(tidy(mod1)$p.value[2:4])
-  statD_res[idx,5:7] <- as.numeric(exp(tidy(mod1)$estimate)[2:4]) # add intercept!
-  ## maybe clauclate the actual means?
-  # the incident rate for Q2 is 0.85 times the incident rate for the reference group (Q1)
-  # the incident rate for Q3 is 0.67 times the incident rate for the reference group 
-  # the percent change in the incident rate of cases is a 0.35% decrease for every unit increase in vacc
-  
-  # mod1 <- glm(deadD ~ Vaccination * as.factor(Quarantine), Rsubset, na.action=na.exclude, maxit=1000, family = poisson(link = "log"))
-  # test <- glm(deadD ~ as.factor(Quarantine), Rsubset, na.action=na.exclude, maxit=1000, family = poisson(link = "log"))
-  test <- glm(deadD ~ as.factor(Vaccination), Rsubset, na.action=na.exclude, maxit=1000, family = poisson(link = "log"))
-  exp(tidy(test)$estimate)
+  statD_res[idx,5:8] <- as.numeric(exp(tidy(mod1)$estimate)[1:4]) 
+  ## for R0=1.3
+  # intercept 15.8976936
+  # the incident rate for Q2 is 0.9144578 times the incident rate for the reference group (Q1)
+  # i.e., 15.8976936*0.9144578=14.53777
+  # the incident rate for Q3 is 0.8702091 times the incident rate for the reference group (Q1)
+  # i.e., 15.8976936*0.8702091=13.83432
+  # the percent change in the incident rate of cases is a 0.43% decrease for every unit increase in vacc
+  # i.e., 15.8976936*(0.4384563^0.5) [intercept*(coeff^vaccunits)]
       
   # run  mod for humans & get sig and ests
   mod2 <- glm.nb(deadH ~ Vaccination + as.factor(Quarantine), Rsubset, na.action=na.exclude, maxit=1000, link=log)
   statH_res[idx,2:4] <- as.numeric(tidy(mod2)$p.value[2:4])
-  statH_res[idx,5:7] <- as.numeric(exp(tidy(mod2)$estimate)[2:4])
+  statH_res[idx,5:8] <- as.numeric(exp(tidy(mod2)$estimate)[1:4])
   
   print(idx)
 }
 
 colnames(statD_res) <- data.frame(statD_res)
 colnames(statH_res) <- data.frame(statH_res)
-colnames(statD_res) <- colnames(statH_res) <- c("R0", "pvalVacc", "pvalQ2", "pvalQ3", "estVacc", "estQ2", "estQ3")
+colnames(statD_res) <- colnames(statH_res) <- c("R0", "pvalVacc", "pvalQ2", "pvalQ3", "intercept", 
+                                                "estVacc", "estQ2", "estQ3")
 
 head(statD_res)
 write.csv(statD_res, "output/statD_res.csv", row.names=F)
