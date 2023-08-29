@@ -1,11 +1,9 @@
 ## Quarantine model 
 ## Name: Isty Rysava
 ## Date: 31/03/2023
-## Code: Statistical analysis of vacination and quarantine effect on the number of cases
+## Code: Statistical analysis of vaccination and quarantine effect on the number of cases
 
 rm(list=ls())
-
-# setwd("C:/Users/tui9/Documents/Practice code/Quarantine-Models")
 setwd("~/Documents/Rabies_Warwick/Quarantine-models")
 
 # library(harrypotter)
@@ -14,16 +12,12 @@ library(MASS)
 library(broom)
 
 ## Read in data and intit
-# final_frame_box <- read.csv("output/MS_monthly_infection_boxplot.csv")
-final_frame_box <- read.csv("output/MS_monthly_infection_boxplot_burnout.csv") 
-
+final_frame_box <- read.csv("output/MS_monthly_infection_boxplot_burnout_10yrs.csv")
 final_frame_box$R0 <- as.character(final_frame_box$R0)
 R0s <- seq(1, 2, 0.1)
 
 #################################################################################################################################################
-### Get stats
-# NOTE: maybe check if Poiss would be a better fit
-
+### Get the statistics
 statD_res <- matrix(NA, nrow=length(R0s), ncol=7)
 statH_res <- matrix(NA, nrow=length(R0s), ncol=7)
 statD_res[,1] <- statH_res[,1] <- R0s
@@ -34,13 +28,19 @@ for(idx in 1:length(R0s)){
   Rsubset$allinfD <- Rsubset$expD + Rsubset$infD 
   
   # run model for dogs & get sig and ests
-  mod1 <- glm.nb(allinfD ~ Vaccination + as.factor(Quarantine), Rsubset, na.action=na.exclude, maxit=1000, link=log)
+  mod1 <- glm.nb(deadD ~ Vaccination + as.factor(Quarantine), Rsubset, na.action=na.exclude, maxit=1000, link=log)
   statD_res[idx,2:4] <- as.numeric(tidy(mod1)$p.value[2:4])
-  statD_res[idx,5:7] <- as.numeric(exp(tidy(mod1)$estimate)[2:4])
+  statD_res[idx,5:7] <- as.numeric(exp(tidy(mod1)$estimate)[2:4]) # add intercept!
+  ## maybe clauclate the actual means?
   # the incident rate for Q2 is 0.85 times the incident rate for the reference group (Q1)
   # the incident rate for Q3 is 0.67 times the incident rate for the reference group 
   # the percent change in the incident rate of cases is a 0.35% decrease for every unit increase in vacc
-
+  
+  # mod1 <- glm(deadD ~ Vaccination * as.factor(Quarantine), Rsubset, na.action=na.exclude, maxit=1000, family = poisson(link = "log"))
+  # test <- glm(deadD ~ as.factor(Quarantine), Rsubset, na.action=na.exclude, maxit=1000, family = poisson(link = "log"))
+  test <- glm(deadD ~ as.factor(Vaccination), Rsubset, na.action=na.exclude, maxit=1000, family = poisson(link = "log"))
+  exp(tidy(test)$estimate)
+      
   # run  mod for humans & get sig and ests
   mod2 <- glm.nb(deadH ~ Vaccination + as.factor(Quarantine), Rsubset, na.action=na.exclude, maxit=1000, link=log)
   statH_res[idx,2:4] <- as.numeric(tidy(mod2)$p.value[2:4])
