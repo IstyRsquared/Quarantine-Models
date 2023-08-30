@@ -48,8 +48,8 @@ for(idx in 1:length(R0s)){
   print(idx)
 }
 
-colnames(statD_res) <- data.frame(statD_res)
-colnames(statH_res) <- data.frame(statH_res)
+statD_res <- data.frame(statD_res)
+statH_res <- data.frame(statH_res)
 colnames(statD_res) <- colnames(statH_res) <- c("R0", "pvalVacc", "pvalQ2", "pvalQ3", "intercept", 
                                                 "estVacc", "estQ2", "estQ3")
 
