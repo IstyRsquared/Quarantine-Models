@@ -104,7 +104,7 @@ vacs <- c(0, 0.25, 0.5, 0.75)
 final_list_ts <- readRDS("output/incs/MS_monthly_infection_tsinc_10yrs.Rdata")  
 
 path <- paste0("figs/ts/MS_sim_runs_R0", R0, "_sqcall_vcall_INCS.pdf")
-mains <- c("A/", "B/", "C/", "D/")
+mains <- c("(A)", "(B)", "(C)", "(D)")
 borderq4 <- c(alpha(q4[1:2], 0.1), alpha(q4[3], 0.3), alpha(q4[4], 0.3))
 pdf(path, width=8, height=6)
 par(mfrow=c(2,2))
@@ -155,7 +155,7 @@ dev.off()
 final_list_ts <- readRDS("output/incs/MS_monthly_infection_tsinc_10yrs.Rdata")  
 
 path <- paste0("figs/ts/MS_sim_runs_R0", R0, "_sqcall_vcall_INCSincidence.pdf")
-mains <- c("A/", "B/", "C/", "D/")
+mains <- c("(A)", "(B)", "(C)", "(D)")
 borderq4 <- c(alpha(q4[1:2], 0.1), alpha(q4[3], 0.3), alpha(q4[4], 0.3))
 pdf(path, width=8, height=6)
 par(mfrow=c(2,2))
@@ -166,7 +166,8 @@ for(idx in 1:length(vacs)){
   for(i in 1:length(sqcs)){
     ind <- which(paste(R0, sqcs[i], vacc)==paste(params_grid$R0, params_grid$sqc, params_grid$vc))
     max.temp <- final_list_ts[[which(paste(R0, sqcs[3], vacc)==paste(params_grid$R0, params_grid$sqc, params_grid$vc))]]
-    max <- ceiling(max((max.temp[[2]]$upperPI+max.temp[[3]]$upperPI)/max.temp[[5]]$upperPI*10000, na.rm=T))
+    # max <- ceiling(max((max.temp[[2]]$upperPI+max.temp[[3]]$upperPI)/max.temp[[5]]$upperPI*10000, na.rm=T))
+    max=3
     
     stats_mthly <- final_list_ts[[ind]]
     Edogs <- stats_mthly[[2]]; Edogs <- Edogs[(7:120),]
@@ -206,7 +207,7 @@ dev.off()
 final_list_ts <- readRDS("output/MS_monthly_infection_ts_10yrs.Rdata")  
 
 path <- "figs/ts/MS_sim_runs_R01.3_sqcall_vcallHUMANS.pdf"
-mains <- c("A/", "B/", "C/", "D/")
+mains <- c("(A)", "(B)", "(C)", "(D)")
 borderq4 <- c(alpha(q4[1:2], 0.1), alpha(q4[3], 0.3), alpha(q4[4], 0.3))
 pdf(path, width=8, height=6)
 par(mfrow=c(2,2))
