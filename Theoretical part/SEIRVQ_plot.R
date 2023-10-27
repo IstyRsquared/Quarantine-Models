@@ -115,8 +115,8 @@ p_popexp<- ggplot(data = exp.dogs, aes(vc, q, fill = inc_10t)) +
         axis.title.y = element_text(vjust = +4),
         axis.title.x = element_text(vjust = -1))
 
-g1 <- p_popexp %+% dplyr::filter(exp.dogs, R0 == 1) + theme(legend.position = "none")
-g2 <- p_popexp %+% dplyr::filter(exp.dogs, R0 != 1) + facet_wrap(~R0, nrow=2)
+g1 <- p_popexp %+% dplyr::filter(exp.dogs, R0 == 1.3) + theme(legend.position = "none")
+g2 <- p_popexp %+% dplyr::filter(exp.dogs, R0 != 1.3) + facet_wrap(~R0, nrow=2)
 
 exposed_grid <- gridExtra::grid.arrange(g1, g2,
                                           layout_matrix = 
