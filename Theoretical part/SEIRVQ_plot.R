@@ -91,6 +91,7 @@ p_popinf <- ggplot(data = inf.dogs, aes(vc, q, fill = inc_10t)) +
   theme(strip.background = element_blank(),
         axis.title.y = element_text(vjust = +4),
         axis.title.x = element_text(vjust = -1))
+# limits = c(0, 300)
 
 g1 <- p_popinf %+% dplyr::filter(inf.dogs, R0 == 1.3) + theme(legend.position = "none")
 g2 <- p_popinf %+% dplyr::filter(inf.dogs, R0 != 1.3) + facet_wrap(~R0, nrow=2)
@@ -114,6 +115,7 @@ p_popexp<- ggplot(data = exp.dogs, aes(vc, q, fill = inc_10t)) +
   theme(strip.background = element_blank(),
         axis.title.y = element_text(vjust = +4),
         axis.title.x = element_text(vjust = -1))
+# limits = c(0, 300)
 
 g1 <- p_popexp %+% dplyr::filter(exp.dogs, R0 == 1.3) + theme(legend.position = "none")
 g2 <- p_popexp %+% dplyr::filter(exp.dogs, R0 != 1.3) + facet_wrap(~R0, nrow=2)
@@ -130,6 +132,7 @@ Stability_InfectedPop_Grid <- ggpubr::ggarrange(stability_grid, infection_grid, 
                                             hjust = -0.1,
                                             font.label = list(size = 10))
 
-ggsave("figs/Stability_InfectedPop_Grid.png", width = 22, height = 28, units = "cm")
+# ggsave("figs/Stability_InfectedPop_Grid.png", width = 22, height = 28, units = "cm")
+ggsave("figs/Stability_InfectedPop_Grid_V2.png", width = 22, height = 28, units = "cm")
 
 
